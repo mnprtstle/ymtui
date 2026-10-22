@@ -113,6 +113,9 @@ Default keys: `j/k` move, `gg/G` top/bottom, `ctrl+d/u` half page, `l`/Enter ope
 
 ## 5. Milestones (each one leaves something runnable)
 1. **Hello mpv:** a plain Go CLI that starts mpv, plays a hard-coded video ID, and pauses/seeks over IPC. You learn processes, sockets, JSON, and goroutines.
+   - **Status: done** (branch `phase/01-hello-mpv`). Own IPC client in `internal/player` (no `mpvipc` dependency); `go run ./cmd/ymtui [-id VIDEO_ID]` runs the scripted demo.
+   - Decisions: mpv is started with `exec.Command` (not `CommandContext`) and stopped by `Player.Close`; `--no-terminal` keeps mpv off our stdin/stdout (add `--log-file` with debug logging later).
+   - Runtime dep note: yt-dlp needs its EJS challenge-solver scripts, not just deno. On Fedora install `yt-dlp+default`; without it YouTube returns 403 on the audio stream.
 2. **Search in Go:** an InnerTube search that prints songs to stdout, plus unit tests against saved JSON fixtures.
 3. **First TUI:** search box, results list, Enter plays, now-playing bar with a progress ticker.
 4. **Queue:** add/next/prev, auto-advance on mpv `end-file`, shuffle/repeat.
