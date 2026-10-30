@@ -1,5 +1,6 @@
 // Command ymtui is a terminal YouTube Music player.
 // Phase 1: a scripted demo that plays one track and drives mpv over IPC.
+// Phase 2: -search prints song results from YouTube Music.
 package main
 
 import (
@@ -13,16 +14,38 @@ import (
 	"time"
 
 	"github.com/mnprtstle/ymtui/internal/player"
+	"github.com/mnprtstle/ymtui/internal/ytmusic"
 )
 
 func main() {
 	id := flag.String("id", "dQw4w9WgXcQ", "YouTube video ID to play")
+	query := flag.String("search", "", "search YouTube Music for songs and print them")
 	flag.Parse()
 
-	if err := run(*id); err != nil {
+	var err error
+	if *query != "" {
+		err = search(*query)
+	} else {
+		err = run(*id)
+	}
+	if err != nil {
 		fmt.Fprintln(os.Stderr, "ymtui:", err)
 		os.Exit(1)
 	}
+}
+
+func search(query string) error {
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+
+	songs, err := ytmusic.NewClient().Search(ctx, query)
+	if err != nil {
+		return err
+	}
+	for _, s := range songs {
+		fmt.Printf("%-12s %s\n", s.VideoID, s)
+	}
+	return nil
 }
 
 func run(id string) error {
