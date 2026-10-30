@@ -1,0 +1,875 @@
+{
+ "contents": {
+  "tabbedSearchResultsRenderer": {
+   "tabs": [
+    {
+     "tabRenderer": {
+      "title": "YT Music",
+      "selected": true,
+      "content": {
+       "sectionListRenderer": {
+        "contents": [
+         {
+          "musicShelfRenderer": {
+           "title": {
+            "runs": [
+             {
+              "text": "Songs"
+             }
+            ]
+           },
+           "contents": [
+            {
+             "musicResponsiveListItemRenderer": {
+              "trackingParams": "COUCEOFnGAAiEwjxlrLA2eKXAxW54ecDHRrPEM0=",
+              "flexColumns": [
+               {
+                "musicResponsiveListItemFlexColumnRenderer": {
+                 "text": {
+                  "runs": [
+                   {
+                    "text": "You And Whose Army?",
+                    "navigationEndpoint": {
+                     "clickTrackingParams": "COUCEOFnGAAiEwjxlrLA2eKXAxW54ecDHRrPEM2aAQMQ9CTKAQSwZUAo",
+                     "watchEndpoint": {
+                      "videoId": "QQnc-hM80UQ",
+                      "watchEndpointMusicSupportedConfigs": {
+                       "watchEndpointMusicConfig": {
+                        "musicVideoType": "MUSIC_VIDEO_TYPE_ATV"
+                       }
+                      }
+                     }
+                    }
+                   }
+                  ]
+                 },
+                 "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                }
+               },
+               {
+                "musicResponsiveListItemFlexColumnRenderer": {
+                 "text": {
+                  "runs": [
+                   {
+                    "text": "Radiohead",
+                    "navigationEndpoint": {
+                     "clickTrackingParams": "COUCEOFnGAAiEwjxlrLA2eKXAxW54ecDHRrPEM3KAQSwZUAo",
+                     "browseEndpoint": {
+                      "browseId": "UCr_iyUANcn9OX_yy9piYoLw",
+                      "browseEndpointContextSupportedConfigs": {
+                       "browseEndpointContextMusicConfig": {
+                        "pageType": "MUSIC_PAGE_TYPE_ARTIST"
+                       }
+                      }
+                     }
+                    }
+                   },
+                   {
+                    "text": " • "
+                   },
+                   {
+                    "text": "Amnesiac",
+                    "navigationEndpoint": {
+                     "clickTrackingParams": "COUCEOFnGAAiEwjxlrLA2eKXAxW54ecDHRrPEM3KAQSwZUAo",
+                     "browseEndpoint": {
+                      "browseId": "MPREb_DyYPOfs7HPD",
+                      "browseEndpointContextSupportedConfigs": {
+                       "browseEndpointContextMusicConfig": {
+                        "pageType": "MUSIC_PAGE_TYPE_ALBUM"
+                       }
+                      }
+                     }
+                    }
+                   },
+                   {
+                    "text": " • "
+                   },
+                   {
+                    "text": "3:11"
+                   }
+                  ],
+                  "accessibility": {
+                   "accessibilityData": {
+                    "label": "Radiohead • Amnesiac • 3 minutes, 11 seconds"
+                   }
+                  }
+                 },
+                 "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                }
+               },
+               {
+                "musicResponsiveListItemFlexColumnRenderer": {
+                 "text": {
+                  "runs": [
+                   {
+                    "text": "12M plays"
+                   }
+                  ],
+                  "accessibility": {
+                   "accessibilityData": {
+                    "label": "12 million plays"
+                   }
+                  }
+                 },
+                 "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                }
+               }
+              ],
+              "playlistItemData": {
+               "videoId": "QQnc-hM80UQ"
+              },
+              "flexColumnDisplayStyle": "MUSIC_RESPONSIVE_LIST_ITEM_FLEX_COLUMN_DISPLAY_STYLE_TWO_LINE_STACK",
+              "itemHeight": "MUSIC_RESPONSIVE_LIST_ITEM_HEIGHT_TALL"
+             }
+            },
+            {
+             "musicResponsiveListItemRenderer": {
+              "trackingParams": "CNMCEOFnGAEiEwjxlrLA2eKXAxW54ecDHRrPEM0=",
+              "flexColumns": [
+               {
+                "musicResponsiveListItemFlexColumnRenderer": {
+                 "text": {
+                  "runs": [
+                   {
+                    "text": "How Do You?",
+                    "navigationEndpoint": {
+                     "clickTrackingParams": "CNMCEOFnGAEiEwjxlrLA2eKXAxW54ecDHRrPEM2aAQMQ9CTKAQSwZUAo",
+                     "watchEndpoint": {
+                      "videoId": "ukFTig7exNU",
+                      "watchEndpointMusicSupportedConfigs": {
+                       "watchEndpointMusicConfig": {
+                        "musicVideoType": "MUSIC_VIDEO_TYPE_ATV"
+                       }
+                      }
+                     }
+                    }
+                   }
+                  ]
+                 },
+                 "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                }
+               },
+               {
+                "musicResponsiveListItemFlexColumnRenderer": {
+                 "text": {
+                  "runs": [
+                   {
+                    "text": "Radiohead",
+                    "navigationEndpoint": {
+                     "clickTrackingParams": "CNMCEOFnGAEiEwjxlrLA2eKXAxW54ecDHRrPEM3KAQSwZUAo",
+                     "browseEndpoint": {
+                      "browseId": "UCr_iyUANcn9OX_yy9piYoLw",
+                      "browseEndpointContextSupportedConfigs": {
+                       "browseEndpointContextMusicConfig": {
+                        "pageType": "MUSIC_PAGE_TYPE_ARTIST"
+                       }
+                      }
+                     }
+                    }
+                   },
+                   {
+                    "text": " • "
+                   },
+                   {
+                    "text": "Pablo Honey",
+                    "navigationEndpoint": {
+                     "clickTrackingParams": "CNMCEOFnGAEiEwjxlrLA2eKXAxW54ecDHRrPEM3KAQSwZUAo",
+                     "browseEndpoint": {
+                      "browseId": "MPREb_DciERiuADkS",
+                      "browseEndpointContextSupportedConfigs": {
+                       "browseEndpointContextMusicConfig": {
+                        "pageType": "MUSIC_PAGE_TYPE_ALBUM"
+                       }
+                      }
+                     }
+                    }
+                   },
+                   {
+                    "text": " • "
+                   },
+                   {
+                    "text": "2:13"
+                   }
+                  ],
+                  "accessibility": {
+                   "accessibilityData": {
+                    "label": "Radiohead • Pablo Honey • 2 minutes, 13 seconds"
+                   }
+                  }
+                 },
+                 "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                }
+               },
+               {
+                "musicResponsiveListItemFlexColumnRenderer": {
+                 "text": {
+                  "runs": [
+                   {
+                    "text": "1.5M plays"
+                   }
+                  ],
+                  "accessibility": {
+                   "accessibilityData": {
+                    "label": "1.5 million plays"
+                   }
+                  }
+                 },
+                 "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                }
+               }
+              ],
+              "playlistItemData": {
+               "videoId": "ukFTig7exNU"
+              },
+              "flexColumnDisplayStyle": "MUSIC_RESPONSIVE_LIST_ITEM_FLEX_COLUMN_DISPLAY_STYLE_TWO_LINE_STACK",
+              "itemHeight": "MUSIC_RESPONSIVE_LIST_ITEM_HEIGHT_TALL"
+             }
+            },
+            {
+             "musicResponsiveListItemRenderer": {
+              "trackingParams": "CMECEOFnGAIiEwjxlrLA2eKXAxW54ecDHRrPEM0=",
+              "flexColumns": [
+               {
+                "musicResponsiveListItemFlexColumnRenderer": {
+                 "text": {
+                  "runs": [
+                   {
+                    "text": "Exit Music (For A Film)",
+                    "navigationEndpoint": {
+                     "clickTrackingParams": "CMECEOFnGAIiEwjxlrLA2eKXAxW54ecDHRrPEM2aAQMQ9CTKAQSwZUAo",
+                     "watchEndpoint": {
+                      "videoId": "FapBH3j6WoA",
+                      "watchEndpointMusicSupportedConfigs": {
+                       "watchEndpointMusicConfig": {
+                        "musicVideoType": "MUSIC_VIDEO_TYPE_ATV"
+                       }
+                      }
+                     }
+                    }
+                   }
+                  ]
+                 },
+                 "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                }
+               },
+               {
+                "musicResponsiveListItemFlexColumnRenderer": {
+                 "text": {
+                  "runs": [
+                   {
+                    "text": "Radiohead",
+                    "navigationEndpoint": {
+                     "clickTrackingParams": "CMECEOFnGAIiEwjxlrLA2eKXAxW54ecDHRrPEM3KAQSwZUAo",
+                     "browseEndpoint": {
+                      "browseId": "UCr_iyUANcn9OX_yy9piYoLw",
+                      "browseEndpointContextSupportedConfigs": {
+                       "browseEndpointContextMusicConfig": {
+                        "pageType": "MUSIC_PAGE_TYPE_ARTIST"
+                       }
+                      }
+                     }
+                    }
+                   },
+                   {
+                    "text": " • "
+                   },
+                   {
+                    "text": "OK Computer OKNOTOK 1997 2017",
+                    "navigationEndpoint": {
+                     "clickTrackingParams": "CMECEOFnGAIiEwjxlrLA2eKXAxW54ecDHRrPEM3KAQSwZUAo",
+                     "browseEndpoint": {
+                      "browseId": "MPREb_b9Yfli6Cg79",
+                      "browseEndpointContextSupportedConfigs": {
+                       "browseEndpointContextMusicConfig": {
+                        "pageType": "MUSIC_PAGE_TYPE_ALBUM"
+                       }
+                      }
+                     }
+                    }
+                   },
+                   {
+                    "text": " • "
+                   },
+                   {
+                    "text": "4:26"
+                   }
+                  ],
+                  "accessibility": {
+                   "accessibilityData": {
+                    "label": "Radiohead • OK Computer OKNOTOK 1997 2017 • 4 minutes, 26 seconds"
+                   }
+                  }
+                 },
+                 "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                }
+               },
+               {
+                "musicResponsiveListItemFlexColumnRenderer": {
+                 "text": {
+                  "runs": [
+                   {
+                    "text": "116M plays"
+                   }
+                  ],
+                  "accessibility": {
+                   "accessibilityData": {
+                    "label": "116 million plays"
+                   }
+                  }
+                 },
+                 "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                }
+               }
+              ],
+              "playlistItemData": {
+               "videoId": "FapBH3j6WoA"
+              },
+              "flexColumnDisplayStyle": "MUSIC_RESPONSIVE_LIST_ITEM_FLEX_COLUMN_DISPLAY_STYLE_TWO_LINE_STACK",
+              "itemHeight": "MUSIC_RESPONSIVE_LIST_ITEM_HEIGHT_TALL"
+             }
+            },
+            {
+             "musicResponsiveListItemRenderer": {
+              "trackingParams": "CK8CEOFnGAMiEwjxlrLA2eKXAxW54ecDHRrPEM0=",
+              "flexColumns": [
+               {
+                "musicResponsiveListItemFlexColumnRenderer": {
+                 "text": {
+                  "runs": [
+                   {
+                    "text": "Morning Bell",
+                    "navigationEndpoint": {
+                     "clickTrackingParams": "CK8CEOFnGAMiEwjxlrLA2eKXAxW54ecDHRrPEM2aAQMQ9CTKAQSwZUAo",
+                     "watchEndpoint": {
+                      "videoId": "XTT6k3Q4JnQ",
+                      "watchEndpointMusicSupportedConfigs": {
+                       "watchEndpointMusicConfig": {
+                        "musicVideoType": "MUSIC_VIDEO_TYPE_ATV"
+                       }
+                      }
+                     }
+                    }
+                   }
+                  ]
+                 },
+                 "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                }
+               },
+               {
+                "musicResponsiveListItemFlexColumnRenderer": {
+                 "text": {
+                  "runs": [
+                   {
+                    "text": "Radiohead",
+                    "navigationEndpoint": {
+                     "clickTrackingParams": "CK8CEOFnGAMiEwjxlrLA2eKXAxW54ecDHRrPEM3KAQSwZUAo",
+                     "browseEndpoint": {
+                      "browseId": "UCr_iyUANcn9OX_yy9piYoLw",
+                      "browseEndpointContextSupportedConfigs": {
+                       "browseEndpointContextMusicConfig": {
+                        "pageType": "MUSIC_PAGE_TYPE_ARTIST"
+                       }
+                      }
+                     }
+                    }
+                   },
+                   {
+                    "text": " • "
+                   },
+                   {
+                    "text": "Kid A",
+                    "navigationEndpoint": {
+                     "clickTrackingParams": "CK8CEOFnGAMiEwjxlrLA2eKXAxW54ecDHRrPEM3KAQSwZUAo",
+                     "browseEndpoint": {
+                      "browseId": "MPREb_ob5cslgCNc0",
+                      "browseEndpointContextSupportedConfigs": {
+                       "browseEndpointContextMusicConfig": {
+                        "pageType": "MUSIC_PAGE_TYPE_ALBUM"
+                       }
+                      }
+                     }
+                    }
+                   },
+                   {
+                    "text": " • "
+                   },
+                   {
+                    "text": "4:36"
+                   }
+                  ],
+                  "accessibility": {
+                   "accessibilityData": {
+                    "label": "Radiohead • Kid A • 4 minutes, 36 seconds"
+                   }
+                  }
+                 },
+                 "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                }
+               },
+               {
+                "musicResponsiveListItemFlexColumnRenderer": {
+                 "text": {
+                  "runs": [
+                   {
+                    "text": "5M plays"
+                   }
+                  ],
+                  "accessibility": {
+                   "accessibilityData": {
+                    "label": "5 million plays"
+                   }
+                  }
+                 },
+                 "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                }
+               }
+              ],
+              "playlistItemData": {
+               "videoId": "XTT6k3Q4JnQ"
+              },
+              "flexColumnDisplayStyle": "MUSIC_RESPONSIVE_LIST_ITEM_FLEX_COLUMN_DISPLAY_STYLE_TWO_LINE_STACK",
+              "itemHeight": "MUSIC_RESPONSIVE_LIST_ITEM_HEIGHT_TALL"
+             }
+            },
+            {
+             "musicResponsiveListItemRenderer": {
+              "trackingParams": "CJ0CEOFnGAQiEwjxlrLA2eKXAxW54ecDHRrPEM0=",
+              "flexColumns": [
+               {
+                "musicResponsiveListItemFlexColumnRenderer": {
+                 "text": {
+                  "runs": [
+                   {
+                    "text": "The Bends",
+                    "navigationEndpoint": {
+                     "clickTrackingParams": "CJ0CEOFnGAQiEwjxlrLA2eKXAxW54ecDHRrPEM2aAQMQ9CTKAQSwZUAo",
+                     "watchEndpoint": {
+                      "videoId": "K8z8hLvjb_U",
+                      "watchEndpointMusicSupportedConfigs": {
+                       "watchEndpointMusicConfig": {
+                        "musicVideoType": "MUSIC_VIDEO_TYPE_ATV"
+                       }
+                      }
+                     }
+                    }
+                   }
+                  ]
+                 },
+                 "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                }
+               },
+               {
+                "musicResponsiveListItemFlexColumnRenderer": {
+                 "text": {
+                  "runs": [
+                   {
+                    "text": "Radiohead",
+                    "navigationEndpoint": {
+                     "clickTrackingParams": "CJ0CEOFnGAQiEwjxlrLA2eKXAxW54ecDHRrPEM3KAQSwZUAo",
+                     "browseEndpoint": {
+                      "browseId": "UCr_iyUANcn9OX_yy9piYoLw",
+                      "browseEndpointContextSupportedConfigs": {
+                       "browseEndpointContextMusicConfig": {
+                        "pageType": "MUSIC_PAGE_TYPE_ARTIST"
+                       }
+                      }
+                     }
+                    }
+                   },
+                   {
+                    "text": " • "
+                   },
+                   {
+                    "text": "The Bends",
+                    "navigationEndpoint": {
+                     "clickTrackingParams": "CJ0CEOFnGAQiEwjxlrLA2eKXAxW54ecDHRrPEM3KAQSwZUAo",
+                     "browseEndpoint": {
+                      "browseId": "MPREb_xsmDKhqhQrG",
+                      "browseEndpointContextSupportedConfigs": {
+                       "browseEndpointContextMusicConfig": {
+                        "pageType": "MUSIC_PAGE_TYPE_ALBUM"
+                       }
+                      }
+                     }
+                    }
+                   },
+                   {
+                    "text": " • "
+                   },
+                   {
+                    "text": "4:07"
+                   }
+                  ],
+                  "accessibility": {
+                   "accessibilityData": {
+                    "label": "Radiohead • The Bends • 4 minutes, 7 seconds"
+                   }
+                  }
+                 },
+                 "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                }
+               },
+               {
+                "musicResponsiveListItemFlexColumnRenderer": {
+                 "text": {
+                  "runs": [
+                   {
+                    "text": "12M plays"
+                   }
+                  ],
+                  "accessibility": {
+                   "accessibilityData": {
+                    "label": "12 million plays"
+                   }
+                  }
+                 },
+                 "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                }
+               }
+              ],
+              "playlistItemData": {
+               "videoId": "K8z8hLvjb_U"
+              },
+              "flexColumnDisplayStyle": "MUSIC_RESPONSIVE_LIST_ITEM_FLEX_COLUMN_DISPLAY_STYLE_TWO_LINE_STACK",
+              "itemHeight": "MUSIC_RESPONSIVE_LIST_ITEM_HEIGHT_TALL"
+             }
+            },
+            {
+             "musicResponsiveListItemRenderer": {
+              "trackingParams": "CIsCEOFnGAUiEwjxlrLA2eKXAxW54ecDHRrPEM0=",
+              "flexColumns": [
+               {
+                "musicResponsiveListItemFlexColumnRenderer": {
+                 "text": {
+                  "runs": [
+                   {
+                    "text": "Lucky",
+                    "navigationEndpoint": {
+                     "clickTrackingParams": "CIsCEOFnGAUiEwjxlrLA2eKXAxW54ecDHRrPEM2aAQMQ9CTKAQSwZUAo",
+                     "watchEndpoint": {
+                      "videoId": "rU9wbh7xWhY",
+                      "watchEndpointMusicSupportedConfigs": {
+                       "watchEndpointMusicConfig": {
+                        "musicVideoType": "MUSIC_VIDEO_TYPE_ATV"
+                       }
+                      }
+                     }
+                    }
+                   }
+                  ]
+                 },
+                 "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                }
+               },
+               {
+                "musicResponsiveListItemFlexColumnRenderer": {
+                 "text": {
+                  "runs": [
+                   {
+                    "text": "Radiohead",
+                    "navigationEndpoint": {
+                     "clickTrackingParams": "CIsCEOFnGAUiEwjxlrLA2eKXAxW54ecDHRrPEM3KAQSwZUAo",
+                     "browseEndpoint": {
+                      "browseId": "UCr_iyUANcn9OX_yy9piYoLw",
+                      "browseEndpointContextSupportedConfigs": {
+                       "browseEndpointContextMusicConfig": {
+                        "pageType": "MUSIC_PAGE_TYPE_ARTIST"
+                       }
+                      }
+                     }
+                    }
+                   },
+                   {
+                    "text": " • "
+                   },
+                   {
+                    "text": "Help",
+                    "navigationEndpoint": {
+                     "clickTrackingParams": "CIsCEOFnGAUiEwjxlrLA2eKXAxW54ecDHRrPEM3KAQSwZUAo",
+                     "browseEndpoint": {
+                      "browseId": "MPREb_WWVVTTvwccq",
+                      "browseEndpointContextSupportedConfigs": {
+                       "browseEndpointContextMusicConfig": {
+                        "pageType": "MUSIC_PAGE_TYPE_ALBUM"
+                       }
+                      }
+                     }
+                    }
+                   },
+                   {
+                    "text": " • "
+                   },
+                   {
+                    "text": "4:23"
+                   }
+                  ],
+                  "accessibility": {
+                   "accessibilityData": {
+                    "label": "Radiohead • Help • 4 minutes, 23 seconds"
+                   }
+                  }
+                 },
+                 "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                }
+               },
+               {
+                "musicResponsiveListItemFlexColumnRenderer": {
+                 "text": {
+                  "runs": [
+                   {
+                    "text": "18M plays"
+                   }
+                  ],
+                  "accessibility": {
+                   "accessibilityData": {
+                    "label": "18 million plays"
+                   }
+                  }
+                 },
+                 "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                }
+               }
+              ],
+              "playlistItemData": {
+               "videoId": "rU9wbh7xWhY"
+              },
+              "flexColumnDisplayStyle": "MUSIC_RESPONSIVE_LIST_ITEM_FLEX_COLUMN_DISPLAY_STYLE_TWO_LINE_STACK",
+              "itemHeight": "MUSIC_RESPONSIVE_LIST_ITEM_HEIGHT_TALL"
+             }
+            }
+           ],
+           "trackingParams": "CAsQ-V4YACITCPGWssDZ4pcDFbnh5wMdGs8QzQ==",
+           "continuations": [
+            {
+             "nextContinuationData": {
+              "continuation": "EqIDEglyYWRpb2hlYWQalANFZ1dLQVFJSUFVZ1VhZ3dRRGhBS0VBTVFCQkFKRUFXQ0FRdFJVVzVqTFdoTk9EQlZVWUlCQzNWclJsUnBaemRsZUU1VmdnRUxSbUZ3UWtnemFqWlhiMEdDQVF0WVZGUTJhek5STkVwdVVZSUJDMHM0ZWpob1RIWnFZbDlWZ2dFTGNsVTVkMkpvTjNoWGFGbUNBUXM1VW1aV2NDMUhhRXRtYzRJQkMydFFRVnBXT0hrMFFqUTBnZ0VMWkd0UGVqbFdaVEp0YVctQ0FRdDNjV2c1UjB0QmRGcDZiNElCQzFwV1owaFFVM2xGU1hGcmdnRUxYMUYyYkdoZlpIWnRhMnVDQVF0RVpXd3pRekpYTmpOUWE0SUJDM2wxV2xsUmRuWk1XRlpaZ2dFTGJGWmhkR0UyU1dKbE5GV0NBUXR3ZVZSWk5sb3RSbkY2ZDRJQkMxaG5ZV28xYzNWVVEyZHJnZ0VMYjJOUlNXMXdVbVpRVFd1Q0FRdHlOMjFPT1VKTWNqUnFWWUlCQzB0clEyZFZTVjluTW05dhjx6tAu",
+              "clickTrackingParams": "CAwQybcCIhMI8ZaywNnilwMVueHnAx0azxDNygEEsGVAKA=="
+             }
+            }
+           ],
+           "shelfDivider": {
+            "musicShelfDividerRenderer": {
+             "hidden": true
+            }
+           }
+          }
+         }
+        ],
+        "trackingParams": "CAIQui8iEwjxlrLA2eKXAxW54ecDHRrPEM0=",
+        "header": {
+         "chipCloudRenderer": {
+          "chips": [
+           {
+            "chipCloudChipRenderer": {
+             "style": {
+              "styleType": "STYLE_SECONDARY"
+             },
+             "navigationEndpoint": {
+              "clickTrackingParams": "CAoQ_V0YACITCPGWssDZ4pcDFbnh5wMdGs8QzcoBBLBlQCg=",
+              "searchEndpoint": {
+               "query": "radiohead"
+              }
+             },
+             "trackingParams": "CAoQ_V0YACITCPGWssDZ4pcDFbnh5wMdGs8QzQ==",
+             "icon": {
+              "iconType": "CLOSE"
+             },
+             "accessibilityData": {
+              "accessibilityData": {
+               "label": "Clear filters"
+              }
+             },
+             "isSelected": false,
+             "uniqueId": "Clear filters"
+            }
+           },
+           {
+            "chipCloudChipRenderer": {
+             "style": {
+              "styleType": "STYLE_DEFAULT"
+             },
+             "text": {
+              "runs": [
+               {
+                "text": "Featured playlists"
+               }
+              ]
+             },
+             "navigationEndpoint": {
+              "clickTrackingParams": "CAkQ_V0YASITCPGWssDZ4pcDFbnh5wMdGs8QzcoBBLBlQCg=",
+              "searchEndpoint": {
+               "query": "radiohead",
+               "params": "EgeKAQQoADgBagwQDhAKEAMQBBAJEAU%3D"
+              }
+             },
+             "trackingParams": "CAkQ_V0YASITCPGWssDZ4pcDFbnh5wMdGs8QzQ==",
+             "accessibilityData": {
+              "accessibilityData": {
+               "label": "Show featured playlist results"
+              }
+             },
+             "isSelected": false,
+             "uniqueId": "Featured playlists"
+            }
+           },
+           {
+            "chipCloudChipRenderer": {
+             "style": {
+              "styleType": "STYLE_DEFAULT"
+             },
+             "text": {
+              "runs": [
+               {
+                "text": "Community playlists"
+               }
+              ]
+             },
+             "navigationEndpoint": {
+              "clickTrackingParams": "CAgQ_V0YAiITCPGWssDZ4pcDFbnh5wMdGs8QzcoBBLBlQCg=",
+              "searchEndpoint": {
+               "query": "radiohead",
+               "params": "EgeKAQQoAEABagwQDhAKEAMQBBAJEAU%3D"
+              }
+             },
+             "trackingParams": "CAgQ_V0YAiITCPGWssDZ4pcDFbnh5wMdGs8QzQ==",
+             "accessibilityData": {
+              "accessibilityData": {
+               "label": "Show community playlist results"
+              }
+             },
+             "isSelected": false,
+             "uniqueId": "Community playlists"
+            }
+           },
+           {
+            "chipCloudChipRenderer": {
+             "style": {
+              "styleType": "STYLE_PRIMARY"
+             },
+             "text": {
+              "runs": [
+               {
+                "text": "Songs"
+               }
+              ]
+             },
+             "navigationEndpoint": {
+              "clickTrackingParams": "CAcQ_V0YAyITCPGWssDZ4pcDFbnh5wMdGs8QzcoBBLBlQCg=",
+              "searchEndpoint": {
+               "query": "radiohead",
+               "params": "EgWKAQIIAWoMEA4QChADEAQQCRAF"
+              }
+             },
+             "trackingParams": "CAcQ_V0YAyITCPGWssDZ4pcDFbnh5wMdGs8QzQ==",
+             "accessibilityData": {
+              "accessibilityData": {
+               "label": "Show song results selected"
+              }
+             },
+             "isSelected": true,
+             "uniqueId": "Songs"
+            }
+           },
+           {
+            "chipCloudChipRenderer": {
+             "style": {
+              "styleType": "STYLE_DEFAULT"
+             },
+             "text": {
+              "runs": [
+               {
+                "text": "Videos"
+               }
+              ]
+             },
+             "navigationEndpoint": {
+              "clickTrackingParams": "CAYQ_V0YBCITCPGWssDZ4pcDFbnh5wMdGs8QzcoBBLBlQCg=",
+              "searchEndpoint": {
+               "query": "radiohead",
+               "params": "EgWKAQIQAWoMEA4QChADEAQQCRAF"
+              }
+             },
+             "trackingParams": "CAYQ_V0YBCITCPGWssDZ4pcDFbnh5wMdGs8QzQ==",
+             "accessibilityData": {
+              "accessibilityData": {
+               "label": "Show video results"
+              }
+             },
+             "isSelected": false,
+             "uniqueId": "Videos"
+            }
+           },
+           {
+            "chipCloudChipRenderer": {
+             "style": {
+              "styleType": "STYLE_DEFAULT"
+             },
+             "text": {
+              "runs": [
+               {
+                "text": "Albums"
+               }
+              ]
+             },
+             "navigationEndpoint": {
+              "clickTrackingParams": "CAUQ_V0YBSITCPGWssDZ4pcDFbnh5wMdGs8QzcoBBLBlQCg=",
+              "searchEndpoint": {
+               "query": "radiohead",
+               "params": "EgWKAQIYAWoMEA4QChADEAQQCRAF"
+              }
+             },
+             "trackingParams": "CAUQ_V0YBSITCPGWssDZ4pcDFbnh5wMdGs8QzQ==",
+             "accessibilityData": {
+              "accessibilityData": {
+               "label": "Show album results"
+              }
+             },
+             "isSelected": false,
+             "uniqueId": "Albums"
+            }
+           },
+           {
+            "chipCloudChipRenderer": {
+             "style": {
+              "styleType": "STYLE_DEFAULT"
+             },
+             "text": {
+              "runs": [
+               {
+                "text": "Artists"
+               }
+              ]
+             },
+             "navigationEndpoint": {
+              "clickTrackingParams": "CAQQ_V0YBiITCPGWssDZ4pcDFbnh5wMdGs8QzcoBBLBlQCg=",
+              "searchEndpoint": {
+               "query": "radiohead",
+               "params": "EgWKAQIgAWoMEA4QChADEAQQCRAF"
+              }
+             },
+             "trackingParams": "CAQQ_V0YBiITCPGWssDZ4pcDFbnh5wMdGs8QzQ==",
+             "accessibilityData": {
+              "accessibilityData": {
+               "label": "Show artist results"
+              }
+             },
+             "isSelected": false,
+             "uniqueId": "Artists"
+            }
+           }
+          ],
+          "collapsedRowCount": 1,
+          "trackingParams": "CAMQ_F0iEwjxlrLA2eKXAxW54ecDHRrPEM0=",
+          "horizontalScrollable": true
+         }
+        }
+       }
+      },
+      "tabIdentifier": "music_search_catalog",
+      "trackingParams": "CAEQ8JMBGAAiEwjxlrLA2eKXAxW54ecDHRrPEM0="
+     }
+    }
+   ]
+  }
+ }
+}
