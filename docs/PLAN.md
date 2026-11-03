@@ -117,6 +117,8 @@ Default keys: `j/k` move, `gg/G` top/bottom, `ctrl+d/u` half page, `l`/Enter ope
    - Decisions: mpv is started with `exec.Command` (not `CommandContext`) and stopped by `Player.Close`; `--no-terminal` keeps mpv off our stdin/stdout (add `--log-file` with debug logging later).
    - Runtime dep note: yt-dlp needs its EJS challenge-solver scripts, not just deno. On Fedora install `yt-dlp+default`; without it YouTube returns 403 on the audio stream.
 2. **Search in Go:** an InnerTube search that prints songs to stdout, plus unit tests against saved JSON fixtures.
+   - **Status: done** (branch `phase/02-search`). `internal/ytmusic`: `Client.Search` plus a pure `parseSongs`; `go run ./cmd/ymtui -search "query"` prints songs.
+   - Decisions: plain `net/http` (no auth, cookie `SOCS=CAI`, client `WEB_REMIX`); songs filter param `EgWKAQIIAWoMEA4QChADEAQQCRAF`. The fixture is a real response trimmed to 6 rows. Artist/album/time are split from one subtitle column on `" • "`; the video ID comes from `playlistItemData.videoId`.
 3. **First TUI:** search box, results list, Enter plays, now-playing bar with a progress ticker.
 4. **Queue:** add/next/prev, auto-advance on mpv `end-file`, shuffle/repeat.
 5. **Browse:** album and artist views with the view stack and `h/l` navigation.
