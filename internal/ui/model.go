@@ -11,6 +11,7 @@ import (
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 
+	"github.com/mnprtstle/ymtui/internal/queue"
 	"github.com/mnprtstle/ymtui/internal/ytmusic"
 )
 
@@ -39,6 +40,11 @@ type Model struct {
 	pendingG  bool
 	searching bool
 
+	queue            *queue.Queue
+	showQueue        bool // toggled with Q: queue list instead of results
+	qCursor, qOffset int
+	notice           string // transient status message, cleared on next key
+
 	now      *ytmusic.Song // track we asked mpv to play
 	title    string        // mpv's media-title, used until we have a Song
 	pos, dur float64       // seconds
@@ -54,7 +60,7 @@ func New(s Searcher, p Player) Model {
 	in.Placeholder = "press / to search"
 	in.PromptStyle = accentStyle
 	in.CharLimit = 200
-	return Model{search: s, player: p, input: in, volume: 100}
+	return Model{search: s, player: p, input: in, volume: 100, queue: queue.New(nil)}
 }
 
 // Init runs once at startup; returning nil means no initial command.
@@ -71,7 +77,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 
 	case tea.KeyMsg:
-		m.err = nil
+		m.err, m.notice = nil, ""
 		if msg.String() == "ctrl+c" {
 			return m, tea.Quit
 		}
@@ -90,6 +96,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case playerEventMsg:
 		m.applyEvent(msg)
+		// Only a natural end ("eof") advances. Our own loadfile replacing a
+		// track also fires end-file, with reason "stop"; reacting to that
+		// would skip a song on every manual change.
+		if msg.ev.Name == "end-file" && msg.ev.Reason == "eof" {
+			return m, m.advance(true)
+		}
 		return m, nil
 
 	case errMsg:
@@ -142,14 +154,37 @@ func (m Model) updateNormal(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		m.moveCursor(-m.rows() / 2)
 	case "g":
 		if wasG {
-			m.moveCursor(-len(m.songs))
+			m.moveCursor(-m.listLen())
 		} else {
 			m.pendingG = true
 		}
 	case "G":
-		m.moveCursor(len(m.songs))
+		m.moveCursor(m.listLen())
 	case "enter", "l":
 		return m, m.playSelected()
+	case "Q":
+		m.showQueue = !m.showQueue
+		m.scrollToCursor()
+	case "a":
+		if !m.showQueue && len(m.songs) > 0 {
+			s := m.songs[m.cursor]
+			m.queue.Add(s)
+			m.notice = "added: " + s.Title
+		}
+	case "d":
+		if m.showQueue {
+			m.queue.Remove(m.qCursor)
+			m.moveCursor(0) // clamp
+		}
+	case "n":
+		return m, m.advance(false)
+	case "p":
+		return m, m.previous()
+	case "s":
+		on := m.queue.ToggleShuffle()
+		m.notice = "shuffle " + map[bool]string{true: "on", false: "off"}[on]
+	case "r":
+		m.notice = "repeat " + m.queue.CycleRepeat().String()
 	case " ":
 		p := m.player
 		pause := !m.paused
@@ -166,29 +201,86 @@ func (m Model) updateNormal(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
+// listLen is the length of whichever list is on screen.
+func (m *Model) listLen() int {
+	if m.showQueue {
+		return m.queue.Len()
+	}
+	return len(m.songs)
+}
+
+// activeList returns pointers to the cursor and scroll offset of the list on
+// screen. Pointers let one function edit either pair of fields.
+func (m *Model) activeList() (cursor, offset *int) {
+	if m.showQueue {
+		return &m.qCursor, &m.qOffset
+	}
+	return &m.cursor, &m.offset
+}
+
 func (m *Model) moveCursor(delta int) {
-	if len(m.songs) == 0 {
+	n := m.listLen()
+	if n == 0 {
 		return
 	}
-	m.cursor = min(max(m.cursor+delta, 0), len(m.songs)-1)
-	m.scrollToCursor()
+	c, o := m.activeList()
+	*c = min(max(*c+delta, 0), n-1)
+	m.scroll(*c, o)
 }
 
+// scrollToCursor re-clamps both lists, e.g. after a resize or view switch.
 func (m *Model) scrollToCursor() {
-	rows := m.rows()
-	if m.cursor < m.offset {
-		m.offset = m.cursor
-	} else if m.cursor >= m.offset+rows {
-		m.offset = m.cursor - rows + 1
-	}
-	m.offset = max(m.offset, 0)
+	m.scroll(m.cursor, &m.offset)
+	m.scroll(m.qCursor, &m.qOffset)
 }
 
+func (m *Model) scroll(cursor int, offset *int) {
+	rows := m.rows()
+	if cursor < *offset {
+		*offset = cursor
+	} else if cursor >= *offset+rows {
+		*offset = cursor - rows + 1
+	}
+	*offset = max(*offset, 0)
+}
+
+// playSelected handles Enter. On results it replaces the queue with the whole
+// result list, starting at the cursor, so playback continues down the list.
+// In the queue view it jumps to the selected entry.
 func (m *Model) playSelected() tea.Cmd {
-	if len(m.songs) == 0 {
+	if m.showQueue {
+		if song, ok := m.queue.Jump(m.qCursor); ok {
+			return m.playSong(song)
+		}
 		return nil
 	}
-	song := m.songs[m.cursor]
+	if song, ok := m.queue.Replace(m.songs, m.cursor); ok {
+		return m.playSong(song)
+	}
+	return nil
+}
+
+// advance plays the next queued song. auto is true for end-of-track.
+func (m *Model) advance(auto bool) tea.Cmd {
+	if song, ok := m.queue.Next(auto); ok {
+		return m.playSong(song)
+	}
+	return nil
+}
+
+// previous restarts the song if it has played for a few seconds, otherwise
+// goes back one.
+func (m *Model) previous() tea.Cmd {
+	if m.pos > 3 && m.now != nil {
+		return m.seek(-m.pos) // seek is relative
+	}
+	if song, ok := m.queue.Prev(); ok {
+		return m.playSong(song)
+	}
+	return nil
+}
+
+func (m *Model) playSong(song ytmusic.Song) tea.Cmd {
 	m.now = &song
 	m.pos, m.dur = 0, 0
 	p := m.player
