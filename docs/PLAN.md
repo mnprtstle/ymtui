@@ -120,6 +120,8 @@ Default keys: `j/k` move, `gg/G` top/bottom, `ctrl+d/u` half page, `l`/Enter ope
    - **Status: done** (branch `phase/02-search`). `internal/ytmusic`: `Client.Search` plus a pure `parseSongs`; `go run ./cmd/ymtui -search "query"` prints songs.
    - Decisions: plain `net/http` (no auth, cookie `SOCS=CAI`, client `WEB_REMIX`); songs filter param `EgWKAQIIAWoMEA4QChADEAQQCRAF`. The fixture is a real response trimmed to 6 rows. Artist/album/time are split from one subtitle column on `" • "`; the video ID comes from `playlistItemData.videoId`.
 3. **First TUI:** search box, results list, Enter plays, now-playing bar with a progress ticker.
+   - **Status: done** (branch `phase/03-first-tui`). `internal/ui`: `Model`/`Update`/`View`, results table, player bar, status line. `go run ./cmd/ymtui` runs the TUI; the old demo is now `-demo`.
+   - Decisions: no sidebar yet (single results pane). The progress "ticker" is mpv's observed `time-pos` property pumped in via `program.Send` (`ui.Pump`), not a `tea.Tick`. `ui` takes small `Searcher`/`Player` interfaces so tests use fakes. Added deps: bubbletea, bubbles (textinput), lipgloss; `x/ansi` (a lipgloss dependency) is used for width-aware truncation. Debug log is `debug.log` (gitignored).
 4. **Queue:** add/next/prev, auto-advance on mpv `end-file`, shuffle/repeat.
 5. **Browse:** album and artist views with the view stack and `h/l` navigation.
 6. **Local playlists:** create, add, remove, play, saved as JSON.

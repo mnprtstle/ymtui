@@ -1,6 +1,7 @@
 // Command ymtui is a terminal YouTube Music player.
 // Phase 1: a scripted demo that plays one track and drives mpv over IPC.
 // Phase 2: -search prints song results from YouTube Music.
+// Phase 3: with no flags, runs the TUI.
 package main
 
 import (
@@ -13,25 +14,61 @@ import (
 	"syscall"
 	"time"
 
+	tea "github.com/charmbracelet/bubbletea"
+
 	"github.com/mnprtstle/ymtui/internal/player"
+	"github.com/mnprtstle/ymtui/internal/ui"
 	"github.com/mnprtstle/ymtui/internal/ytmusic"
 )
 
 func main() {
 	id := flag.String("id", "dQw4w9WgXcQ", "YouTube video ID to play")
 	query := flag.String("search", "", "search YouTube Music for songs and print them")
+	demo := flag.Bool("demo", false, "run the scripted mpv demo instead of the TUI")
 	flag.Parse()
 
 	var err error
-	if *query != "" {
+	switch {
+	case *query != "":
 		err = search(*query)
-	} else {
+	case *demo:
 		err = run(*id)
+	default:
+		err = tui()
 	}
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "ymtui:", err)
 		os.Exit(1)
 	}
+}
+
+// tui starts mpv and runs the Bubble Tea program until the user quits.
+func tui() error {
+	// Debug output goes to a file: stdout belongs to the TUI.
+	f, err := tea.LogToFile("debug.log", "ymtui")
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+
+	p, err := player.Start(ctx)
+	if err != nil {
+		return err
+	}
+	defer p.Close()
+	for i, prop := range ui.ObservedProperties {
+		if err := p.ObserveProperty(ctx, i+1, prop); err != nil {
+			return err
+		}
+	}
+
+	prog := tea.NewProgram(ui.New(ytmusic.NewClient(), p), tea.WithAltScreen())
+	go ui.Pump(prog, p.Events())
+	_, err = prog.Run()
+	return err
 }
 
 func search(query string) error {
