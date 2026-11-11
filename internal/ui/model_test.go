@@ -3,6 +3,7 @@ package ui
 import (
 	"context"
 	"encoding/json"
+	"slices"
 	"strings"
 	"testing"
 
@@ -143,5 +144,79 @@ func TestFit(t *testing.T) {
 		if got := fit(tt.in, tt.w); got != tt.want {
 			t.Errorf("fit(%q,%d) = %q, want %q", tt.in, tt.w, got, tt.want)
 		}
+	}
+}
+
+// run feeds keys through Update, executing returned Cmds inline.
+func run(m Model, keys ...string) Model {
+	for _, k := range keys {
+		next, cmd := m.Update(key(k))
+		m = next.(Model)
+		if cmd != nil {
+			cmd()
+		}
+	}
+	return m
+}
+
+func endFile(m Model, reason string) Model {
+	next, cmd := m.Update(playerEventMsg{player.Event{Name: "end-file", Reason: reason}})
+	if cmd != nil {
+		cmd()
+	}
+	return next.(Model)
+}
+
+func TestQueueAdvance(t *testing.T) {
+	const base = "https://music.youtube.com/watch?v="
+	tests := []struct {
+		name   string
+		keys   []string
+		reason string // end-file reason fired after keys; "" = none
+		want   []string
+	}{
+		{"enter queues results", []string{"enter"}, "", []string{base + "a"}},
+		{"eof advances", []string{"enter"}, "eof", []string{base + "a", base + "b"}},
+		{"stop is ignored", []string{"enter"}, "stop", []string{base + "a"}},
+		{"error is ignored", []string{"enter"}, "error", []string{base + "a"}},
+		{"n skips", []string{"enter", "n"}, "", []string{base + "a", base + "b"}},
+		{"p goes back", []string{"j", "enter", "p"}, "", []string{base + "b", base + "a"}},
+		{"n at end does nothing", []string{"G", "enter", "n"}, "", []string{base + "c"}},
+		{"repeat one replays on eof", []string{"enter", "r", "r"}, "eof", []string{base + "a", base + "a"}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			m, fp := loaded(t)
+			m = run(m, tt.keys...)
+			if tt.reason != "" {
+				m = endFile(m, tt.reason)
+			}
+			if !slices.Equal(fp.loaded, tt.want) {
+				t.Errorf("loaded %v, want %v", fp.loaded, tt.want)
+			}
+		})
+	}
+}
+
+func TestQueueView(t *testing.T) {
+	m, fp := loaded(t)
+	m = run(m, "j", "a") // add B to an empty queue
+	if m.queue.Len() != 1 || !strings.Contains(m.notice, "added") {
+		t.Fatalf("add failed: len=%d notice=%q", m.queue.Len(), m.notice)
+	}
+	m = run(m, "j", "a", "Q") // add C, open queue
+	if !m.showQueue || !strings.Contains(m.View(), "Queue") {
+		t.Fatal("queue view not shown")
+	}
+	m = run(m, "j", "enter") // play entry 2 (C)
+	if len(fp.loaded) != 1 || !strings.HasSuffix(fp.loaded[0], "=c") {
+		t.Errorf("loaded %v, want c", fp.loaded)
+	}
+	m = run(m, "d", "d", "d") // remove past the end: clamps, no panic
+	if m.queue.Len() != 0 || m.qCursor != 0 {
+		t.Errorf("len=%d cursor=%d after removing all", m.queue.Len(), m.qCursor)
+	}
+	if !strings.Contains(m.View(), "Queue is empty") {
+		t.Error("empty queue message missing")
 	}
 }

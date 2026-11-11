@@ -123,6 +123,8 @@ Default keys: `j/k` move, `gg/G` top/bottom, `ctrl+d/u` half page, `l`/Enter ope
    - **Status: done** (branch `phase/03-first-tui`). `internal/ui`: `Model`/`Update`/`View`, results table, player bar, status line. `go run ./cmd/ymtui` runs the TUI; the old demo is now `-demo`.
    - Decisions: no sidebar yet (single results pane). The progress "ticker" is mpv's observed `time-pos` property pumped in via `program.Send` (`ui.Pump`), not a `tea.Tick`. `ui` takes small `Searcher`/`Player` interfaces so tests use fakes. Added deps: bubbletea, bubbles (textinput), lipgloss; `x/ansi` (a lipgloss dependency) is used for width-aware truncation. Debug log is `debug.log` (gitignored).
 4. **Queue:** add/next/prev, auto-advance on mpv `end-file`, shuffle/repeat.
+   - **Status: done** (branch `phase/04-queue`). `internal/queue` (pure, table-tested) plus UI wiring. Keys: `a` add, `n`/`p` next/prev, `s` shuffle, `r` cycle repeat, `Q` toggle queue view (`enter` plays, `d` removes).
+   - Decisions: Enter on a result replaces the queue with the whole result list starting at the cursor. Auto-advance only on `end-file` reason `eof` (our own `loadfile` fires `stop`). `p` restarts the song if >3s in. Queue indices are play-order positions; shuffle keeps the current song first, and songs added while shuffled land randomly among the upcoming ones. Removing the current song leaves the queue "detached" so next/prev still work. Queue is not persisted yet (phase 6/8).
 5. **Browse:** album and artist views with the view stack and `h/l` navigation.
 6. **Local playlists:** create, add, remove, play, saved as JSON.
 7. **Media keys:** start with mpv-mpris, then write our own MPRIS server.

@@ -6,6 +6,8 @@ import (
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/x/ansi"
+
+	"github.com/mnprtstle/ymtui/internal/queue"
 )
 
 const (
@@ -28,8 +30,14 @@ func (m Model) View() string {
 
 func (m Model) viewPane() string {
 	inner := m.width - 2
-	lines := []string{m.input.View(), m.header(inner - 2)}
-	lines = append(lines, m.resultRows(inner-2)...)
+	var lines []string
+	if m.showQueue {
+		lines = append(lines, m.queueTitle(), m.header(inner-2))
+		lines = append(lines, m.queueRows(inner-2)...)
+	} else {
+		lines = append(lines, m.input.View(), m.header(inner-2))
+		lines = append(lines, m.resultRows(inner-2)...)
+	}
 
 	style := paneStyle
 	if m.mode == modeNormal {
@@ -101,6 +109,51 @@ func (m Model) resultRows(w int) []string {
 	return out
 }
 
+func (m Model) queueTitle() string {
+	return boldStyle.Render("Queue") + dimStyle.Render(fmt.Sprintf("  %d tracks", m.queue.Len()))
+}
+
+func (m Model) queueRows(w int) []string {
+	songs := m.queue.Songs()
+	if len(songs) == 0 {
+		return []string{dimStyle.Render("Queue is empty. Enter on a result plays it; a adds it.")}
+	}
+	cur := m.queue.Position()
+	end := min(m.qOffset+m.rows(), len(songs))
+	out := make([]string, 0, end-m.qOffset)
+	for i := m.qOffset; i < end; i++ {
+		s := songs[i]
+		marker := " "
+		if i == cur {
+			marker = "♪"
+		}
+		line := m.rowText(w, marker, fmt.Sprint(i+1), s.Title, s.Artists, s.Album, s.Duration)
+		if i == m.qCursor {
+			line = cursorStyle.Render(line)
+		}
+		out = append(out, line)
+	}
+	return out
+}
+
+// queueTag summarises shuffle/repeat/position for the player bar.
+func (m Model) queueTag() string {
+	var parts []string
+	if m.queue.Shuffle() {
+		parts = append(parts, "⇄")
+	}
+	switch m.queue.Repeat() {
+	case queue.RepeatAll:
+		parts = append(parts, "↻")
+	case queue.RepeatOne:
+		parts = append(parts, "↻1")
+	}
+	if p := m.queue.Position(); p >= 0 {
+		parts = append(parts, fmt.Sprintf("%d/%d", p+1, m.queue.Len()))
+	}
+	return strings.Join(parts, " ")
+}
+
 func (m Model) viewBar() string {
 	w := m.width - 4 // border + padding
 	title, sub := "Nothing playing", ""
@@ -119,6 +172,9 @@ func (m Model) viewBar() string {
 		state = "⏸"
 	}
 	right := fmt.Sprintf("%s  %d%%", state, int(m.volume))
+	if tag := m.queueTag(); tag != "" {
+		right = tag + "  " + right
+	}
 
 	titleW := max(w-ansi.StringWidth(right)-1, 1)
 	line1 := boldStyle.Render(fit(title, titleW)) + " " + dimStyle.Render(right)
@@ -140,7 +196,10 @@ func (m Model) progress(w int) string {
 }
 
 func (m Model) viewStatus() string {
-	label, hints := " NORMAL ", "j/k move  enter play  space pause  H/L seek  +/- volume  / search  q quit"
+	label, hints := " NORMAL ", "j/k move  enter play  a add  n/p next/prev  s shuffle  r repeat  Q queue  space pause  / search  q quit"
+	if m.showQueue {
+		hints = "j/k move  enter play  d remove  n/p next/prev  s shuffle  r repeat  Q results  q quit"
+	}
 	if m.mode == modeSearch {
 		label, hints = " SEARCH ", "enter search  esc cancel"
 	}
@@ -149,6 +208,8 @@ func (m Model) viewStatus() string {
 	switch {
 	case m.err != nil:
 		text = errStyle.Render(m.err.Error())
+	case m.notice != "":
+		text = accentStyle.Render(m.notice)
 	case m.searching:
 		text = dimStyle.Render("searching…")
 	default:
