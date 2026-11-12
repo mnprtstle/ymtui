@@ -1,6 +1,11 @@
 package ui
 
-import "github.com/mnprtstle/ymtui/internal/ytmusic"
+import (
+	"fmt"
+
+	"github.com/mnprtstle/ymtui/internal/store"
+	"github.com/mnprtstle/ymtui/internal/ytmusic"
+)
 
 // tab is a search result type; Tab cycles through them.
 type tab int
@@ -18,9 +23,20 @@ var tabNames = [numTabs]string{"Songs", "Albums", "Artists"}
 type rowKind int
 
 const (
-	rowSong   rowKind = iota // play it
-	rowAlbum                 // push an album view
-	rowArtist                // push an artist view
+	rowSong     rowKind = iota // play it
+	rowAlbum                   // push an album view
+	rowArtist                  // push an artist view
+	rowPlaylist                // push a playlist's songs; id is the playlist name
+)
+
+// viewSource says where a view's rows come from. Views backed by the playlist
+// store are rebuilt whenever it changes; the rest are fixed once loaded.
+type viewSource int
+
+const (
+	srcPage      viewSource = iota // search results, album or artist page
+	srcPlaylists                   // the list of all playlists
+	srcPlaylist                    // the songs of one playlist
 )
 
 // row is one line of a list. Every list in the app (songs, albums, artists,
@@ -39,6 +55,7 @@ var (
 	albumsHeader  = [4]string{"Title", "Artist", "Type", "Year"}
 	artistsHeader = [4]string{"Name", "Info", "", ""}
 	pageHeader    = [4]string{"Title", "Type", "Album", "Year"} // artist page: songs and releases mixed
+	listsHeader   = [4]string{"Name", "Tracks", "", ""}
 )
 
 // listView is one entry in the view stack. The stack works like directories:
@@ -50,6 +67,9 @@ type listView struct {
 	header  [4]string
 	rows    []row
 	loading bool
+
+	src      viewSource
+	playlist string // name of the playlist shown, when src == srcPlaylist
 
 	cursor, offset int
 }
@@ -91,6 +111,14 @@ func artistPageRows(p ytmusic.ArtistPage) []row {
 			kind = "Album"
 		}
 		rows = append(rows, row{kind: rowAlbum, id: a.BrowseID, cells: [4]string{a.Title, kind, "", a.Year}})
+	}
+	return rows
+}
+
+func playlistRows(pls []store.Playlist) []row {
+	rows := make([]row, len(pls))
+	for i, p := range pls {
+		rows[i] = row{kind: rowPlaylist, id: p.Name, cells: [4]string{p.Name, fmt.Sprintf("%d tracks", len(p.Songs))}}
 	}
 	return rows
 }

@@ -76,7 +76,7 @@ func key(s string) tea.KeyMsg {
 func loaded(t *testing.T) (Model, *fakePlayer) {
 	t.Helper()
 	fp := &fakePlayer{}
-	m := New(nil, fp)
+	m := New(nil, fp, nil)
 	next, _ := m.Update(tea.WindowSizeMsg{Width: 100, Height: 30})
 	m = next.(Model)
 	m.query = "q"
@@ -283,7 +283,7 @@ func runCmds(m Model, keys ...string) Model {
 func withCatalog(t *testing.T) (Model, *fakeCatalog, *fakePlayer) {
 	t.Helper()
 	fc, fp := &fakeCatalog{}, &fakePlayer{}
-	m := New(fc, fp)
+	m := New(fc, fp, nil)
 	next, _ := m.Update(tea.WindowSizeMsg{Width: 100, Height: 30})
 	m = next.(Model)
 	m.query, m.tab = "q", tabAlbums

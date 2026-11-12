@@ -20,14 +20,17 @@ type mode int
 const (
 	modeNormal mode = iota
 	modeSearch
+	modePicker // "add to playlist" overlay
+	modeName   // typing a new playlist's name
 )
 
 // Model is the whole UI state. Bubble Tea follows the Elm architecture:
 // Update(msg) returns a new state, View() renders it, and nothing else
 // touches the state.
 type Model struct {
-	catalog Catalog
-	player  Player
+	catalog   Catalog
+	player    Player
+	playlists PlaylistStore
 
 	width, height int
 	mode          mode
@@ -41,6 +44,11 @@ type Model struct {
 	query     string // last submitted search
 	pendingG  bool
 	searching bool
+
+	picker        picker
+	nameInput     textinput.Model
+	naming        *ytmusic.Song // song to add once the new playlist exists; nil = none
+	pendingDelete string        // playlist armed for deletion by a first "d"
 
 	queue            *queue.Queue
 	showQueue        bool // toggled with Q: queue list instead of results
@@ -56,14 +64,14 @@ type Model struct {
 }
 
 // New builds the initial model.
-func New(c Catalog, p Player) Model {
+func New(c Catalog, p Player, ps PlaylistStore) Model {
 	in := textinput.New()
 	in.Prompt = "/ "
 	in.Placeholder = "press / to search"
 	in.PromptStyle = accentStyle
 	in.CharLimit = 200
 	root := listView{title: "Search", header: songsHeader}
-	return Model{catalog: c, player: p, input: in, volume: 100, queue: queue.New(nil), stack: []listView{root}}
+	return Model{catalog: c, player: p, playlists: ps, nameInput: newNameInput(), input: in, volume: 100, queue: queue.New(nil), stack: []listView{root}}
 }
 
 // cur is the view on top of the stack.
@@ -98,8 +106,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if msg.String() == "ctrl+c" {
 			return m, tea.Quit
 		}
-		if m.mode == modeSearch {
+		switch m.mode {
+		case modeSearch:
 			return m.updateSearch(msg)
+		case modePicker:
+			return m.updatePicker(msg)
+		case modeName:
+			return m.updateName(msg)
 		}
 		return m.updateNormal(msg)
 
@@ -174,6 +187,8 @@ func (m Model) updateNormal(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	key := msg.String()
 	wasG := m.pendingG
 	m.pendingG = false
+	armed := m.pendingDelete // set by a first "d" on a playlist; any other key disarms it
+	m.pendingDelete = ""
 
 	switch key {
 	case "q":
@@ -213,15 +228,23 @@ func (m Model) updateNormal(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		m.showQueue = !m.showQueue
 		m.scrollToCursor()
 	case "a":
-		if v := m.cur(); !m.showQueue && len(v.rows) > 0 && v.rows[v.cursor].kind == rowSong {
-			s := v.rows[v.cursor].song
-			m.queue.Add(s)
-			m.notice = "added: " + s.Title
+		m.queueSelected()
+	case "A":
+		if song, ok := m.selectedSong(); ok {
+			m.openPicker(song)
+		}
+	case "P":
+		m.openPlaylists()
+	case "c":
+		if !m.showQueue && m.cur().src == srcPlaylists {
+			return m, m.startNaming(nil)
 		}
 	case "d":
 		if m.showQueue {
 			m.queue.Remove(m.qCursor)
 			m.moveCursor(0) // clamp
+		} else {
+			m.deleteSelected(armed)
 		}
 	case "n":
 		return m, m.advance(false)
@@ -322,6 +345,8 @@ func (m *Model) openSelected() tea.Cmd {
 	case rowArtist:
 		m.push(listView{title: r.cells[0], id: r.id, header: pageHeader, loading: true})
 		return artistCmd(m.catalog, r.id)
+	case rowPlaylist:
+		m.openPlaylist(r.id)
 	}
 	return nil
 }

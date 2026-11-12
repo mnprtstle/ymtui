@@ -2,6 +2,7 @@
 // Phase 1: a scripted demo that plays one track and drives mpv over IPC.
 // Phase 2: -search prints song results from YouTube Music.
 // Phase 3: with no flags, runs the TUI.
+// Phase 6: playlists are stored under the XDG data dir.
 package main
 
 import (
@@ -17,6 +18,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 
 	"github.com/mnprtstle/ymtui/internal/player"
+	"github.com/mnprtstle/ymtui/internal/store"
 	"github.com/mnprtstle/ymtui/internal/ui"
 	"github.com/mnprtstle/ymtui/internal/ytmusic"
 )
@@ -65,7 +67,16 @@ func tui() error {
 		}
 	}
 
-	prog := tea.NewProgram(ui.New(ytmusic.NewClient(), p), tea.WithAltScreen())
+	path, err := store.DefaultPath()
+	if err != nil {
+		return err
+	}
+	playlists, err := store.Open(path)
+	if err != nil {
+		return err
+	}
+
+	prog := tea.NewProgram(ui.New(ytmusic.NewClient(), p, playlists), tea.WithAltScreen())
 	go ui.Pump(prog, p.Events())
 	_, err = prog.Run()
 	return err
