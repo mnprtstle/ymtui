@@ -26,17 +26,19 @@ const (
 // Update(msg) returns a new state, View() renders it, and nothing else
 // touches the state.
 type Model struct {
-	search Searcher
-	player Player
+	catalog Catalog
+	player  Player
 
 	width, height int
 	mode          mode
 	input         textinput.Model
 
-	query     string
-	songs     []ytmusic.Song
-	cursor    int
-	offset    int // index of the first visible row
+	// stack is the view stack; stack[0] is the search view and is never
+	// popped. The slice holds values, so use cur() to get a pointer to the
+	// top entry and edit it in place.
+	stack     []listView
+	tab       tab    // which result type the search view shows
+	query     string // last submitted search
 	pendingG  bool
 	searching bool
 
@@ -54,13 +56,28 @@ type Model struct {
 }
 
 // New builds the initial model.
-func New(s Searcher, p Player) Model {
+func New(c Catalog, p Player) Model {
 	in := textinput.New()
 	in.Prompt = "/ "
 	in.Placeholder = "press / to search"
 	in.PromptStyle = accentStyle
 	in.CharLimit = 200
-	return Model{search: s, player: p, input: in, volume: 100, queue: queue.New(nil)}
+	root := listView{title: "Search", header: songsHeader}
+	return Model{catalog: c, player: p, input: in, volume: 100, queue: queue.New(nil), stack: []listView{root}}
+}
+
+// cur is the view on top of the stack.
+func (m *Model) cur() *listView { return &m.stack[len(m.stack)-1] }
+
+// push opens a view on top of the stack.
+func (m *Model) push(v listView) { m.stack = append(m.stack, v) }
+
+// pop goes back one view; the search view at the bottom stays.
+func (m *Model) pop() {
+	if len(m.stack) > 1 {
+		m.stack = m.stack[:len(m.stack)-1]
+	}
+	m.scrollToCursor()
 }
 
 // Init runs once at startup; returning nil means no initial command.
@@ -72,7 +89,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		m.width, m.height = msg.Width, msg.Height
-		m.input.Width = max(msg.Width-8, 10)
+		m.input.Width = max(msg.Width-8-tabsWidth, 10)
 		m.scrollToCursor()
 		return m, nil
 
@@ -87,11 +104,31 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m.updateNormal(msg)
 
 	case searchResultsMsg:
-		if msg.query != m.query {
-			return m, nil // a newer search superseded this one
+		if msg.query != m.query || msg.tab != m.tab {
+			return m, nil // a newer search or tab switch superseded this one
 		}
 		m.searching = false
-		m.songs, m.cursor, m.offset = msg.songs, 0, 0
+		m.stack[0].rows, m.stack[0].cursor, m.stack[0].offset = msg.rows, 0, 0
+		return m, nil
+
+	case pageLoadedMsg:
+		// Fill the view this answers. If the user already popped it, no
+		// loading view has this id and the result is dropped.
+		for i := range m.stack {
+			if v := &m.stack[i]; v.loading && v.id == msg.id {
+				v.rows, v.loading = msg.rows, false
+			}
+		}
+		return m, nil
+
+	case pageErrMsg:
+		for i := len(m.stack) - 1; i > 0; i-- {
+			if v := m.stack[i]; v.loading && v.id == msg.id {
+				m.stack = append(m.stack[:i], m.stack[i+1:]...)
+			}
+		}
+		m.scrollToCursor()
+		m.err = msg.err
 		return m, nil
 
 	case playerEventMsg:
@@ -126,7 +163,7 @@ func (m Model) updateSearch(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			return m, nil
 		}
 		m.query, m.searching = q, true
-		return m, searchCmd(m.search, q)
+		return m, searchCmd(m.catalog, q, m.tab)
 	}
 	var cmd tea.Cmd
 	m.input, cmd = m.input.Update(msg)
@@ -142,8 +179,18 @@ func (m Model) updateNormal(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	case "q":
 		return m, tea.Quit
 	case "/":
+		// Searching always happens at the root, so unwind the stack.
+		m.stack, m.showQueue = m.stack[:1], false
 		m.mode = modeSearch
 		return m, m.input.Focus()
+	case "h", "esc":
+		if m.showQueue {
+			m.showQueue = false
+		} else {
+			m.pop()
+		}
+	case "tab":
+		return m, m.nextTab()
 	case "j", "down":
 		m.moveCursor(1)
 	case "k", "up":
@@ -161,13 +208,13 @@ func (m Model) updateNormal(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	case "G":
 		m.moveCursor(m.listLen())
 	case "enter", "l":
-		return m, m.playSelected()
+		return m, m.openSelected()
 	case "Q":
 		m.showQueue = !m.showQueue
 		m.scrollToCursor()
 	case "a":
-		if !m.showQueue && len(m.songs) > 0 {
-			s := m.songs[m.cursor]
+		if v := m.cur(); !m.showQueue && len(v.rows) > 0 && v.rows[v.cursor].kind == rowSong {
+			s := v.rows[v.cursor].song
 			m.queue.Add(s)
 			m.notice = "added: " + s.Title
 		}
@@ -206,7 +253,7 @@ func (m *Model) listLen() int {
 	if m.showQueue {
 		return m.queue.Len()
 	}
-	return len(m.songs)
+	return len(m.cur().rows)
 }
 
 // activeList returns pointers to the cursor and scroll offset of the list on
@@ -215,7 +262,8 @@ func (m *Model) activeList() (cursor, offset *int) {
 	if m.showQueue {
 		return &m.qCursor, &m.qOffset
 	}
-	return &m.cursor, &m.offset
+	v := m.cur()
+	return &v.cursor, &v.offset
 }
 
 func (m *Model) moveCursor(delta int) {
@@ -228,9 +276,11 @@ func (m *Model) moveCursor(delta int) {
 	m.scroll(*c, o)
 }
 
-// scrollToCursor re-clamps both lists, e.g. after a resize or view switch.
+// scrollToCursor re-clamps every list, e.g. after a resize or view switch.
 func (m *Model) scrollToCursor() {
-	m.scroll(m.cursor, &m.offset)
+	for i := range m.stack {
+		m.scroll(m.stack[i].cursor, &m.stack[i].offset)
+	}
 	m.scroll(m.qCursor, &m.qOffset)
 }
 
@@ -244,20 +294,53 @@ func (m *Model) scroll(cursor int, offset *int) {
 	*offset = max(*offset, 0)
 }
 
-// playSelected handles Enter. On results it replaces the queue with the whole
-// result list, starting at the cursor, so playback continues down the list.
-// In the queue view it jumps to the selected entry.
-func (m *Model) playSelected() tea.Cmd {
+// openSelected handles Enter/l. On a song it replaces the queue with every
+// song in the view, starting at the cursor, so playback continues down the
+// list. On an album or artist it pushes a view and loads the page in the
+// background. In the queue view it jumps to the selected entry.
+func (m *Model) openSelected() tea.Cmd {
 	if m.showQueue {
 		if song, ok := m.queue.Jump(m.qCursor); ok {
 			return m.playSong(song)
 		}
 		return nil
 	}
-	if song, ok := m.queue.Replace(m.songs, m.cursor); ok {
-		return m.playSong(song)
+	v := m.cur()
+	if len(v.rows) == 0 {
+		return nil
+	}
+	r := v.rows[v.cursor]
+	switch r.kind {
+	case rowSong:
+		songs, at := v.songs()
+		if song, ok := m.queue.Replace(songs, at); ok {
+			return m.playSong(song)
+		}
+	case rowAlbum:
+		m.push(listView{title: r.cells[0], id: r.id, header: songsHeader, loading: true})
+		return albumCmd(m.catalog, r.id)
+	case rowArtist:
+		m.push(listView{title: r.cells[0], id: r.id, header: pageHeader, loading: true})
+		return artistCmd(m.catalog, r.id)
 	}
 	return nil
+}
+
+// nextTab cycles Songs → Albums → Artists in the search view and re-runs the
+// current query for the new type.
+func (m *Model) nextTab() tea.Cmd {
+	if m.showQueue || len(m.stack) > 1 {
+		return nil
+	}
+	m.tab = (m.tab + 1) % numTabs
+	root := &m.stack[0]
+	root.rows, root.cursor, root.offset = nil, 0, 0
+	root.header = headerFor(m.tab)
+	if m.query == "" {
+		return nil
+	}
+	m.searching = true
+	return searchCmd(m.catalog, m.query, m.tab)
 }
 
 // advance plays the next queued song. auto is true for end-of-track.

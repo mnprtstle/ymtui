@@ -3,6 +3,7 @@ package ui
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"slices"
 	"strings"
 	"testing"
@@ -24,9 +25,50 @@ func (f *fakePlayer) SetPause(context.Context, bool) error     { return nil }
 func (f *fakePlayer) Seek(context.Context, float64) error      { return nil }
 func (f *fakePlayer) SetVolume(context.Context, float64) error { return nil }
 
+// fakeCatalog serves canned data and records what was requested.
+type fakeCatalog struct {
+	albumErr error
+	requests []string
+}
+
+func (f *fakeCatalog) Search(context.Context, string) ([]ytmusic.Song, error) {
+	f.requests = append(f.requests, "songs")
+	return []ytmusic.Song{{VideoID: "s1", Title: "S1"}}, nil
+}
+func (f *fakeCatalog) SearchAlbums(context.Context, string) ([]ytmusic.Album, error) {
+	f.requests = append(f.requests, "albums")
+	return []ytmusic.Album{{BrowseID: "MPREb_1", Title: "Album One", Artists: "Art", Kind: "Album", Year: "1999"}}, nil
+}
+func (f *fakeCatalog) SearchArtists(context.Context, string) ([]ytmusic.Artist, error) {
+	f.requests = append(f.requests, "artists")
+	return []ytmusic.Artist{{BrowseID: "UC1", Name: "Artist One"}}, nil
+}
+func (f *fakeCatalog) Album(_ context.Context, id string) (ytmusic.AlbumPage, error) {
+	f.requests = append(f.requests, "album "+id)
+	if f.albumErr != nil {
+		return ytmusic.AlbumPage{}, f.albumErr
+	}
+	return ytmusic.AlbumPage{Songs: []ytmusic.Song{
+		{VideoID: "t1", Title: "T1"}, {VideoID: "t2", Title: "T2"},
+	}}, nil
+}
+func (f *fakeCatalog) Artist(_ context.Context, id string) (ytmusic.ArtistPage, error) {
+	f.requests = append(f.requests, "artist "+id)
+	return ytmusic.ArtistPage{
+		Name:     "Artist One",
+		TopSongs: []ytmusic.Song{{VideoID: "top1", Title: "Top1"}},
+		Albums:   []ytmusic.Album{{BrowseID: "MPREb_1", Title: "Album One", Year: "1999"}},
+	}, nil
+}
+
 func key(s string) tea.KeyMsg {
-	if s == "enter" {
+	switch s {
+	case "enter":
 		return tea.KeyMsg{Type: tea.KeyEnter}
+	case "esc":
+		return tea.KeyMsg{Type: tea.KeyEsc}
+	case "tab":
+		return tea.KeyMsg{Type: tea.KeyTab}
 	}
 	return tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune(s)}
 }
@@ -38,9 +80,9 @@ func loaded(t *testing.T) (Model, *fakePlayer) {
 	next, _ := m.Update(tea.WindowSizeMsg{Width: 100, Height: 30})
 	m = next.(Model)
 	m.query = "q"
-	next, _ = m.Update(searchResultsMsg{query: "q", songs: []ytmusic.Song{
+	next, _ = m.Update(searchResultsMsg{query: "q", tab: tabSongs, rows: songRows([]ytmusic.Song{
 		{VideoID: "a", Title: "A"}, {VideoID: "b", Title: "B"}, {VideoID: "c", Title: "C"},
-	}})
+	})})
 	return next.(Model), fp
 }
 
@@ -68,8 +110,8 @@ func TestNavigationAndPlay(t *testing.T) {
 					cmd() // run Cmds inline; the fakes don't block
 				}
 			}
-			if m.cursor != tt.wantCur {
-				t.Errorf("cursor = %d, want %d", m.cursor, tt.wantCur)
+			if m.cur().cursor != tt.wantCur {
+				t.Errorf("cursor = %d, want %d", m.cur().cursor, tt.wantCur)
 			}
 			got := ""
 			if len(fp.loaded) > 0 {
@@ -85,8 +127,8 @@ func TestNavigationAndPlay(t *testing.T) {
 func TestStaleSearchIgnored(t *testing.T) {
 	m, _ := loaded(t)
 	m.query = "new"
-	next, _ := m.Update(searchResultsMsg{query: "old", songs: nil})
-	if got := len(next.(Model).songs); got != 3 {
+	next, _ := m.Update(searchResultsMsg{query: "old", rows: nil})
+	if got := len(next.(Model).stack[0].rows); got != 3 {
 		t.Errorf("stale results replaced songs: %d", got)
 	}
 }
@@ -218,5 +260,163 @@ func TestQueueView(t *testing.T) {
 	}
 	if !strings.Contains(m.View(), "Queue is empty") {
 		t.Error("empty queue message missing")
+	}
+}
+
+// runCmds feeds keys through Update, then delivers each returned Cmd's message
+// back to Update the way Bubble Tea would.
+func runCmds(m Model, keys ...string) Model {
+	for _, k := range keys {
+		next, cmd := m.Update(key(k))
+		m = next.(Model)
+		if cmd != nil {
+			if msg := cmd(); msg != nil {
+				next, _ = m.Update(msg)
+				m = next.(Model)
+			}
+		}
+	}
+	return m
+}
+
+// withCatalog is loaded() with a fake catalog, showing one album result.
+func withCatalog(t *testing.T) (Model, *fakeCatalog, *fakePlayer) {
+	t.Helper()
+	fc, fp := &fakeCatalog{}, &fakePlayer{}
+	m := New(fc, fp)
+	next, _ := m.Update(tea.WindowSizeMsg{Width: 100, Height: 30})
+	m = next.(Model)
+	m.query, m.tab = "q", tabAlbums
+	m.stack[0].header = albumsHeader
+	next, _ = m.Update(searchResultsMsg{query: "q", tab: tabAlbums, rows: albumRows([]ytmusic.Album{
+		{BrowseID: "MPREb_1", Title: "Album One", Artists: "Art", Kind: "Album", Year: "1999"},
+	})})
+	return next.(Model), fc, fp
+}
+
+func TestBrowseAlbumAndBack(t *testing.T) {
+	m, fc, fp := withCatalog(t)
+
+	// l pushes a loading view and fires the load; the result then fills it.
+	next, cmd := m.Update(key("l"))
+	m = next.(Model)
+	if len(m.stack) != 2 || !m.cur().loading || cmd == nil {
+		t.Fatalf("after l: depth=%d loading=%v cmd=%v", len(m.stack), m.cur().loading, cmd != nil)
+	}
+	if !strings.Contains(m.View(), "Loading") {
+		t.Error("loading text missing")
+	}
+	next, _ = m.Update(cmd())
+	m = next.(Model)
+	if m.cur().loading || len(m.cur().rows) != 2 {
+		t.Fatalf("page not filled: %+v", m.cur())
+	}
+	if !slices.Equal(fc.requests, []string{"album MPREb_1"}) {
+		t.Errorf("requests = %v", fc.requests)
+	}
+	if v := m.View(); !strings.Contains(v, "Album One") || !strings.Contains(v, "T2") {
+		t.Errorf("breadcrumb or tracks missing:\n%s", v)
+	}
+
+	// Enter on a track queues the whole album from that track.
+	m = run(m, "j", "enter")
+	if len(fp.loaded) != 1 || !strings.HasSuffix(fp.loaded[0], "=t2") {
+		t.Errorf("loaded %v, want t2", fp.loaded)
+	}
+	if m.queue.Len() != 2 {
+		t.Errorf("queue len = %d, want 2", m.queue.Len())
+	}
+
+	// h pops back to the search view with its cursor intact; at the root it
+	// does nothing.
+	m = run(m, "h")
+	if len(m.stack) != 1 {
+		t.Errorf("depth after h = %d", len(m.stack))
+	}
+	m = run(m, "h", "esc")
+	if len(m.stack) != 1 {
+		t.Errorf("popped the root: depth %d", len(m.stack))
+	}
+}
+
+func TestBrowseArtistPage(t *testing.T) {
+	m, _, fp := withCatalog(t)
+	m.tab = tabArtists
+	next, _ := m.Update(searchResultsMsg{query: "q", tab: tabArtists, rows: artistRows([]ytmusic.Artist{{BrowseID: "UC1", Name: "Artist One"}})})
+	m = next.(Model)
+
+	m = runCmds(m, "l")
+	if len(m.stack) != 2 || len(m.cur().rows) != 2 {
+		t.Fatalf("artist page: depth=%d rows=%d", len(m.stack), len(m.cur().rows))
+	}
+	// Row 0 is a song, row 1 an album that opens a deeper view.
+	m = runCmds(m, "j", "l")
+	if len(m.stack) != 3 || m.cur().id != "MPREb_1" {
+		t.Fatalf("album not pushed: depth=%d id=%q", len(m.stack), m.cur().id)
+	}
+	if v := m.View(); !strings.Contains(v, "Artist One › Album One") {
+		t.Errorf("breadcrumb missing:\n%s", v)
+	}
+	m = run(m, "esc", "k", "enter")
+	if len(fp.loaded) != 1 || !strings.HasSuffix(fp.loaded[0], "=top1") {
+		t.Errorf("loaded %v, want top1", fp.loaded)
+	}
+}
+
+func TestStalePageIgnored(t *testing.T) {
+	m, _, _ := withCatalog(t)
+	next, _ := m.Update(key("l"))
+	m = next.(Model)
+	m = run(m, "h") // back out before the page arrives
+	next, _ = m.Update(pageLoadedMsg{id: "MPREb_1", rows: songRows([]ytmusic.Song{{VideoID: "x", Title: "X"}})})
+	m = next.(Model)
+	if len(m.stack) != 1 || len(m.stack[0].rows) != 1 || m.stack[0].rows[0].kind != rowAlbum {
+		t.Errorf("late page leaked into the search view: %+v", m.stack)
+	}
+}
+
+func TestPageErrorPopsLoadingView(t *testing.T) {
+	m, fc, _ := withCatalog(t)
+	fc.albumErr = errors.New("boom")
+	m = runCmds(m, "l")
+	if len(m.stack) != 1 || m.err == nil {
+		t.Errorf("depth=%d err=%v, want back at root with an error", len(m.stack), m.err)
+	}
+}
+
+func TestTabSwitchesResultType(t *testing.T) {
+	m, fc, _ := withCatalog(t)
+	m.tab = tabSongs // start on Songs with the query already set
+	m = runCmds(m, "tab")
+	if m.tab != tabAlbums || len(m.stack[0].rows) != 1 || m.stack[0].rows[0].kind != rowAlbum {
+		t.Errorf("tab=%d rows=%+v", m.tab, m.stack[0].rows)
+	}
+	m = runCmds(m, "tab", "tab") // artists, then wraps to songs
+	if m.tab != tabSongs || !slices.Equal(fc.requests, []string{"albums", "artists", "songs"}) {
+		t.Errorf("tab=%d requests=%v", m.tab, fc.requests)
+	}
+	// A result for a tab we left must not land in the list.
+	next, _ := m.Update(searchResultsMsg{query: "q", tab: tabArtists, rows: artistRows([]ytmusic.Artist{{Name: "late"}})})
+	if got := next.(Model).stack[0].rows; len(got) != 1 || got[0].cells[0] == "late" {
+		t.Errorf("stale tab result applied: %+v", got)
+	}
+}
+
+func TestBrowseViewFitsTerminal(t *testing.T) {
+	for _, size := range [][2]int{{120, 30}, {80, 24}, {45, 15}} {
+		m, _, _ := withCatalog(t)
+		next, _ := m.Update(tea.WindowSizeMsg{Width: size[0], Height: size[1]})
+		m = runCmds(next.(Model), "l")
+		for depth, view := range []string{m.View()} {
+			lines := strings.Split(view, "\n")
+			if len(lines) != size[1] {
+				t.Errorf("%v depth %d: %d lines, want %d", size, depth, len(lines), size[1])
+			}
+			for i, l := range lines {
+				if w := ansi.StringWidth(l); w > size[0] {
+					t.Errorf("%v: line %d is %d wide", size, i, w)
+				}
+			}
+		}
 	}
 }

@@ -35,40 +35,74 @@ type run struct {
 	Text string `json:"text"`
 }
 
+// shelfItem is one row (musicResponsiveListItemRenderer). Search results,
+// album tracklists and an artist's top songs all use this one shape; only
+// which fields are filled differs.
 type shelfItem struct {
 	Row struct {
 		PlaylistItemData struct {
 			VideoID string `json:"videoId"`
 		} `json:"playlistItemData"`
-		FlexColumns []struct {
-			Column struct {
-				Text struct {
-					Runs []run `json:"runs"`
-				} `json:"text"`
-			} `json:"musicResponsiveListItemFlexColumnRenderer"`
-		} `json:"flexColumns"`
+		// NavigationEndpoint is where the row itself leads: set on album and
+		// artist rows, absent on songs.
+		NavigationEndpoint struct {
+			BrowseEndpoint struct {
+				BrowseID string `json:"browseId"`
+			} `json:"browseEndpoint"`
+		} `json:"navigationEndpoint"`
+		FlexColumns  []columnText `json:"flexColumns"`
+		FixedColumns []columnText `json:"fixedColumns"`
 	} `json:"musicResponsiveListItemRenderer"`
+}
+
+// columnText covers both column kinds. They differ only in the JSON key that
+// wraps the text, so each gets a field and `runs` picks whichever is set.
+type columnText struct {
+	Flex struct {
+		Text struct {
+			Runs []run `json:"runs"`
+		} `json:"text"`
+	} `json:"musicResponsiveListItemFlexColumnRenderer"`
+	Fixed struct {
+		Text struct {
+			Runs []run `json:"runs"`
+		} `json:"text"`
+	} `json:"musicResponsiveListItemFixedColumnRenderer"`
+}
+
+func (c columnText) text() string {
+	return runsText(c.Flex.Text.Runs) + runsText(c.Fixed.Text.Runs)
 }
 
 // separator is the run text YouTube puts between "artist • album • time".
 const separator = " • "
 
-// parseSongs extracts songs from a songs-filtered search response. Rows that
-// lack a video ID or title are skipped rather than failing the whole search.
-func parseSongs(data []byte) ([]Song, error) {
+// searchRows decodes a search response and returns every row in it.
+func searchRows(data []byte) ([]shelfItem, error) {
 	var resp searchResponse
 	if err := json.Unmarshal(data, &resp); err != nil {
 		return nil, fmt.Errorf("decode search response: %w", err)
 	}
-
-	var songs []Song
+	var rows []shelfItem
 	for _, tab := range resp.Contents.Tabbed.Tabs {
 		for _, section := range tab.TabRenderer.Content.SectionList.Contents {
-			for _, item := range section.MusicShelf.Contents {
-				if s, ok := item.song(); ok {
-					songs = append(songs, s)
-				}
-			}
+			rows = append(rows, section.MusicShelf.Contents...)
+		}
+	}
+	return rows, nil
+}
+
+// parseSongs extracts songs from a songs-filtered search response. Rows that
+// lack a video ID or title are skipped rather than failing the whole search.
+func parseSongs(data []byte) ([]Song, error) {
+	rows, err := searchRows(data)
+	if err != nil {
+		return nil, err
+	}
+	var songs []Song
+	for _, item := range rows {
+		if s, ok := item.song(); ok {
+			songs = append(songs, s)
 		}
 	}
 	return songs, nil
@@ -79,14 +113,14 @@ func (it shelfItem) song() (Song, bool) {
 	if row.PlaylistItemData.VideoID == "" || len(row.FlexColumns) < 2 {
 		return Song{}, false
 	}
-	title := runsText(row.FlexColumns[0].Column.Text.Runs)
+	title := row.FlexColumns[0].text()
 	if title == "" {
 		return Song{}, false
 	}
 
 	// Second column joined: "Radiohead • Amnesiac • 3:11". Splitting on the
 	// separator tolerates multiple artist runs ("A", " & ", "B") inside a part.
-	parts := strings.Split(runsText(row.FlexColumns[1].Column.Text.Runs), separator)
+	parts := strings.Split(row.FlexColumns[1].text(), separator)
 	s := Song{VideoID: row.PlaylistItemData.VideoID, Title: title, Artists: parts[0]}
 	switch len(parts) {
 	case 2: // artist • time

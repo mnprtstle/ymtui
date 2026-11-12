@@ -1,0 +1,1104 @@
+{
+  "header": {
+    "musicImmersiveHeaderRenderer": {
+      "title": {
+        "runs": [
+          {
+            "text": "Radiohead"
+          }
+        ]
+      }
+    }
+  },
+  "contents": {
+    "singleColumnBrowseResultsRenderer": {
+      "tabs": [
+        {
+          "tabRenderer": {
+            "endpoint": {
+              "browseEndpoint": {
+                "browseId": "UCr_iyUANcn9OX_yy9piYoLw",
+                "params": "EghmZWF0dXJlZA%3D%3D"
+              }
+            },
+            "title": "Music",
+            "selected": true,
+            "content": {
+              "sectionListRenderer": {
+                "contents": [
+                  {
+                    "musicShelfRenderer": {
+                      "title": {
+                        "runs": [
+                          {
+                            "text": "Top songs",
+                            "navigationEndpoint": {
+                              "browseEndpoint": {
+                                "browseId": "VLOLAK5uy_mk1BEhFnj4bSlQ2UOpykWxi5amu08QdG8",
+                                "params": "ggMCCAI%3D",
+                                "browseEndpointContextSupportedConfigs": {
+                                  "browseEndpointContextMusicConfig": {
+                                    "pageType": "MUSIC_PAGE_TYPE_PLAYLIST"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      "contents": [
+                        {
+                          "musicResponsiveListItemRenderer": {
+                            "flexColumns": [
+                              {
+                                "musicResponsiveListItemFlexColumnRenderer": {
+                                  "text": {
+                                    "runs": [
+                                      {
+                                        "text": "Creep",
+                                        "navigationEndpoint": {
+                                          "watchEndpoint": {
+                                            "videoId": "zFYEYRcjK2g",
+                                            "playlistId": "OLAK5uy_mk1BEhFnj4bSlQ2UOpykWxi5amu08QdG8",
+                                            "watchEndpointMusicSupportedConfigs": {
+                                              "watchEndpointMusicConfig": {
+                                                "musicVideoType": "MUSIC_VIDEO_TYPE_ATV"
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  },
+                                  "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                                }
+                              },
+                              {
+                                "musicResponsiveListItemFlexColumnRenderer": {
+                                  "text": {
+                                    "runs": [
+                                      {
+                                        "text": "Radiohead",
+                                        "navigationEndpoint": {
+                                          "browseEndpoint": {
+                                            "browseId": "UCr_iyUANcn9OX_yy9piYoLw",
+                                            "browseEndpointContextSupportedConfigs": {
+                                              "browseEndpointContextMusicConfig": {
+                                                "pageType": "MUSIC_PAGE_TYPE_ARTIST"
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  },
+                                  "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                                }
+                              },
+                              {
+                                "musicResponsiveListItemFlexColumnRenderer": {
+                                  "text": {
+                                    "runs": [
+                                      {
+                                        "text": "2.3B plays"
+                                      }
+                                    ]
+                                  },
+                                  "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                                }
+                              },
+                              {
+                                "musicResponsiveListItemFlexColumnRenderer": {
+                                  "text": {
+                                    "runs": [
+                                      {
+                                        "text": "Pablo Honey",
+                                        "navigationEndpoint": {
+                                          "browseEndpoint": {
+                                            "browseId": "MPREb_DciERiuADkS",
+                                            "browseEndpointContextSupportedConfigs": {
+                                              "browseEndpointContextMusicConfig": {
+                                                "pageType": "MUSIC_PAGE_TYPE_ALBUM"
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  },
+                                  "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_MEDIUM"
+                                }
+                              }
+                            ],
+                            "badges": [
+                              {
+                                "musicInlineBadgeRenderer": {
+                                  "icon": {
+                                    "iconType": "MUSIC_EXPLICIT_BADGE"
+                                  },
+                                  "accessibilityData": {
+                                    "accessibilityData": {
+                                      "label": "Explicit"
+                                    }
+                                  }
+                                }
+                              }
+                            ],
+                            "playlistItemData": {
+                              "videoId": "zFYEYRcjK2g"
+                            }
+                          }
+                        },
+                        {
+                          "musicResponsiveListItemRenderer": {
+                            "flexColumns": [
+                              {
+                                "musicResponsiveListItemFlexColumnRenderer": {
+                                  "text": {
+                                    "runs": [
+                                      {
+                                        "text": "No Surprises",
+                                        "navigationEndpoint": {
+                                          "watchEndpoint": {
+                                            "videoId": "7374CZQoS2Y",
+                                            "playlistId": "OLAK5uy_mk1BEhFnj4bSlQ2UOpykWxi5amu08QdG8",
+                                            "playerParams": "0gcJCTUC0OBS9m0t",
+                                            "watchEndpointMusicSupportedConfigs": {
+                                              "watchEndpointMusicConfig": {
+                                                "musicVideoType": "MUSIC_VIDEO_TYPE_ATV"
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  },
+                                  "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                                }
+                              },
+                              {
+                                "musicResponsiveListItemFlexColumnRenderer": {
+                                  "text": {
+                                    "runs": [
+                                      {
+                                        "text": "Radiohead",
+                                        "navigationEndpoint": {
+                                          "browseEndpoint": {
+                                            "browseId": "UCr_iyUANcn9OX_yy9piYoLw",
+                                            "browseEndpointContextSupportedConfigs": {
+                                              "browseEndpointContextMusicConfig": {
+                                                "pageType": "MUSIC_PAGE_TYPE_ARTIST"
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  },
+                                  "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                                }
+                              },
+                              {
+                                "musicResponsiveListItemFlexColumnRenderer": {
+                                  "text": {
+                                    "runs": [
+                                      {
+                                        "text": "636M plays"
+                                      }
+                                    ]
+                                  },
+                                  "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                                }
+                              },
+                              {
+                                "musicResponsiveListItemFlexColumnRenderer": {
+                                  "text": {
+                                    "runs": [
+                                      {
+                                        "text": "OK Computer OKNOTOK 1997 2017",
+                                        "navigationEndpoint": {
+                                          "browseEndpoint": {
+                                            "browseId": "MPREb_b9Yfli6Cg79",
+                                            "browseEndpointContextSupportedConfigs": {
+                                              "browseEndpointContextMusicConfig": {
+                                                "pageType": "MUSIC_PAGE_TYPE_ALBUM"
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  },
+                                  "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_MEDIUM"
+                                }
+                              }
+                            ],
+                            "playlistItemData": {
+                              "videoId": "7374CZQoS2Y"
+                            }
+                          }
+                        },
+                        {
+                          "musicResponsiveListItemRenderer": {
+                            "flexColumns": [
+                              {
+                                "musicResponsiveListItemFlexColumnRenderer": {
+                                  "text": {
+                                    "runs": [
+                                      {
+                                        "text": "Let Down",
+                                        "navigationEndpoint": {
+                                          "watchEndpoint": {
+                                            "videoId": "ZVgHPSyEIqk",
+                                            "playlistId": "OLAK5uy_mk1BEhFnj4bSlQ2UOpykWxi5amu08QdG8",
+                                            "watchEndpointMusicSupportedConfigs": {
+                                              "watchEndpointMusicConfig": {
+                                                "musicVideoType": "MUSIC_VIDEO_TYPE_ATV"
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  },
+                                  "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                                }
+                              },
+                              {
+                                "musicResponsiveListItemFlexColumnRenderer": {
+                                  "text": {
+                                    "runs": [
+                                      {
+                                        "text": "Radiohead",
+                                        "navigationEndpoint": {
+                                          "browseEndpoint": {
+                                            "browseId": "UCr_iyUANcn9OX_yy9piYoLw",
+                                            "browseEndpointContextSupportedConfigs": {
+                                              "browseEndpointContextMusicConfig": {
+                                                "pageType": "MUSIC_PAGE_TYPE_ARTIST"
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  },
+                                  "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                                }
+                              },
+                              {
+                                "musicResponsiveListItemFlexColumnRenderer": {
+                                  "text": {
+                                    "runs": [
+                                      {
+                                        "text": "226M plays"
+                                      }
+                                    ]
+                                  },
+                                  "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                                }
+                              },
+                              {
+                                "musicResponsiveListItemFlexColumnRenderer": {
+                                  "text": {
+                                    "runs": [
+                                      {
+                                        "text": "OK Computer OKNOTOK 1997 2017",
+                                        "navigationEndpoint": {
+                                          "browseEndpoint": {
+                                            "browseId": "MPREb_b9Yfli6Cg79",
+                                            "browseEndpointContextSupportedConfigs": {
+                                              "browseEndpointContextMusicConfig": {
+                                                "pageType": "MUSIC_PAGE_TYPE_ALBUM"
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  },
+                                  "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_MEDIUM"
+                                }
+                              }
+                            ],
+                            "playlistItemData": {
+                              "videoId": "ZVgHPSyEIqk"
+                            }
+                          }
+                        },
+                        {
+                          "musicResponsiveListItemRenderer": {
+                            "flexColumns": [
+                              {
+                                "musicResponsiveListItemFlexColumnRenderer": {
+                                  "text": {
+                                    "runs": [
+                                      {
+                                        "text": "Fake Plastic Trees",
+                                        "navigationEndpoint": {
+                                          "watchEndpoint": {
+                                            "videoId": "6gDhsUWCHrg",
+                                            "playlistId": "OLAK5uy_mk1BEhFnj4bSlQ2UOpykWxi5amu08QdG8",
+                                            "playerParams": "0gcJCTUC0OBS9m0t",
+                                            "watchEndpointMusicSupportedConfigs": {
+                                              "watchEndpointMusicConfig": {
+                                                "musicVideoType": "MUSIC_VIDEO_TYPE_ATV"
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  },
+                                  "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                                }
+                              },
+                              {
+                                "musicResponsiveListItemFlexColumnRenderer": {
+                                  "text": {
+                                    "runs": [
+                                      {
+                                        "text": "Radiohead",
+                                        "navigationEndpoint": {
+                                          "browseEndpoint": {
+                                            "browseId": "UCr_iyUANcn9OX_yy9piYoLw",
+                                            "browseEndpointContextSupportedConfigs": {
+                                              "browseEndpointContextMusicConfig": {
+                                                "pageType": "MUSIC_PAGE_TYPE_ARTIST"
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  },
+                                  "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                                }
+                              },
+                              {
+                                "musicResponsiveListItemFlexColumnRenderer": {
+                                  "text": {
+                                    "runs": [
+                                      {
+                                        "text": "161M plays"
+                                      }
+                                    ]
+                                  },
+                                  "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                                }
+                              },
+                              {
+                                "musicResponsiveListItemFlexColumnRenderer": {
+                                  "text": {
+                                    "runs": [
+                                      {
+                                        "text": "The Bends",
+                                        "navigationEndpoint": {
+                                          "browseEndpoint": {
+                                            "browseId": "MPREb_xsmDKhqhQrG",
+                                            "browseEndpointContextSupportedConfigs": {
+                                              "browseEndpointContextMusicConfig": {
+                                                "pageType": "MUSIC_PAGE_TYPE_ALBUM"
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  },
+                                  "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_MEDIUM"
+                                }
+                              }
+                            ],
+                            "playlistItemData": {
+                              "videoId": "6gDhsUWCHrg"
+                            }
+                          }
+                        },
+                        {
+                          "musicResponsiveListItemRenderer": {
+                            "flexColumns": [
+                              {
+                                "musicResponsiveListItemFlexColumnRenderer": {
+                                  "text": {
+                                    "runs": [
+                                      {
+                                        "text": "Karma Police",
+                                        "navigationEndpoint": {
+                                          "watchEndpoint": {
+                                            "videoId": "nbCOAPR33ME",
+                                            "playlistId": "OLAK5uy_mk1BEhFnj4bSlQ2UOpykWxi5amu08QdG8",
+                                            "watchEndpointMusicSupportedConfigs": {
+                                              "watchEndpointMusicConfig": {
+                                                "musicVideoType": "MUSIC_VIDEO_TYPE_ATV"
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  },
+                                  "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                                }
+                              },
+                              {
+                                "musicResponsiveListItemFlexColumnRenderer": {
+                                  "text": {
+                                    "runs": [
+                                      {
+                                        "text": "Radiohead",
+                                        "navigationEndpoint": {
+                                          "browseEndpoint": {
+                                            "browseId": "UCr_iyUANcn9OX_yy9piYoLw",
+                                            "browseEndpointContextSupportedConfigs": {
+                                              "browseEndpointContextMusicConfig": {
+                                                "pageType": "MUSIC_PAGE_TYPE_ARTIST"
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  },
+                                  "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                                }
+                              },
+                              {
+                                "musicResponsiveListItemFlexColumnRenderer": {
+                                  "text": {
+                                    "runs": [
+                                      {
+                                        "text": "261M plays"
+                                      }
+                                    ]
+                                  },
+                                  "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                                }
+                              },
+                              {
+                                "musicResponsiveListItemFlexColumnRenderer": {
+                                  "text": {
+                                    "runs": [
+                                      {
+                                        "text": "OK Computer OKNOTOK 1997 2017",
+                                        "navigationEndpoint": {
+                                          "browseEndpoint": {
+                                            "browseId": "MPREb_b9Yfli6Cg79",
+                                            "browseEndpointContextSupportedConfigs": {
+                                              "browseEndpointContextMusicConfig": {
+                                                "pageType": "MUSIC_PAGE_TYPE_ALBUM"
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  },
+                                  "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_MEDIUM"
+                                }
+                              }
+                            ],
+                            "playlistItemData": {
+                              "videoId": "nbCOAPR33ME"
+                            }
+                          }
+                        }
+                      ],
+                      "bottomText": {
+                        "runs": [
+                          {
+                            "text": "Show all"
+                          }
+                        ]
+                      },
+                      "bottomEndpoint": {
+                        "browseEndpoint": {
+                          "browseId": "VLOLAK5uy_mk1BEhFnj4bSlQ2UOpykWxi5amu08QdG8",
+                          "params": "ggMCCAI%3D",
+                          "browseEndpointContextSupportedConfigs": {
+                            "browseEndpointContextMusicConfig": {
+                              "pageType": "MUSIC_PAGE_TYPE_PLAYLIST"
+                            }
+                          }
+                        }
+                      },
+                      "shelfDivider": {
+                        "musicShelfDividerRenderer": {
+                          "hidden": true
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "musicCarouselShelfRenderer": {
+                      "header": {
+                        "musicCarouselShelfBasicHeaderRenderer": {
+                          "title": {
+                            "runs": [
+                              {
+                                "text": "Albums",
+                                "navigationEndpoint": {
+                                  "browseEndpoint": {
+                                    "browseId": "MPADUCr_iyUANcn9OX_yy9piYoLw",
+                                    "params": "ggMIegYIARoCAQI%3D",
+                                    "browseEndpointContextSupportedConfigs": {
+                                      "browseEndpointContextMusicConfig": {
+                                        "pageType": "MUSIC_PAGE_TYPE_ARTIST_DISCOGRAPHY"
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "accessibilityData": {
+                            "accessibilityData": {
+                              "label": "Albums"
+                            }
+                          },
+                          "headerStyle": "MUSIC_CAROUSEL_SHELF_BASIC_HEADER_STYLE_DISPLAY_TWO",
+                          "moreContentButton": {
+                            "buttonRenderer": {
+                              "style": "STYLE_TEXT",
+                              "text": {
+                                "runs": [
+                                  {
+                                    "text": "More"
+                                  }
+                                ]
+                              },
+                              "navigationEndpoint": {
+                                "browseEndpoint": {
+                                  "browseId": "MPADUCr_iyUANcn9OX_yy9piYoLw",
+                                  "params": "ggMIegYIARoCAQI%3D",
+                                  "browseEndpointContextSupportedConfigs": {
+                                    "browseEndpointContextMusicConfig": {
+                                      "pageType": "MUSIC_PAGE_TYPE_ARTIST_DISCOGRAPHY"
+                                    }
+                                  }
+                                }
+                              },
+                              "accessibilityData": {
+                                "accessibilityData": {
+                                  "label": "More"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "contents": [
+                        {
+                          "musicTwoRowItemRenderer": {
+                            "aspectRatio": "MUSIC_TWO_ROW_ITEM_THUMBNAIL_ASPECT_RATIO_SQUARE",
+                            "title": {
+                              "runs": [
+                                {
+                                  "text": "KID A MNESIA",
+                                  "navigationEndpoint": {
+                                    "browseEndpoint": {
+                                      "browseId": "MPREb_E7NpKw54NIT",
+                                      "params": "ggMrGilPTEFLNXV5X204WWFuX01TQWlhX1pZbVpwbDZ4bTFBSU5EZzhMRjFOSQ%3D%3D",
+                                      "browseEndpointContextSupportedConfigs": {
+                                        "browseEndpointContextMusicConfig": {
+                                          "pageType": "MUSIC_PAGE_TYPE_ALBUM"
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              ]
+                            },
+                            "subtitle": {
+                              "runs": [
+                                {
+                                  "text": "2021"
+                                }
+                              ]
+                            },
+                            "navigationEndpoint": {
+                              "browseEndpoint": {
+                                "browseId": "MPREb_E7NpKw54NIT",
+                                "params": "ggMrGilPTEFLNXV5X204WWFuX01TQWlhX1pZbVpwbDZ4bTFBSU5EZzhMRjFOSQ%3D%3D",
+                                "browseEndpointContextSupportedConfigs": {
+                                  "browseEndpointContextMusicConfig": {
+                                    "pageType": "MUSIC_PAGE_TYPE_ALBUM"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "musicTwoRowItemRenderer": {
+                            "aspectRatio": "MUSIC_TWO_ROW_ITEM_THUMBNAIL_ASPECT_RATIO_SQUARE",
+                            "title": {
+                              "runs": [
+                                {
+                                  "text": "A Moon Shaped Pool",
+                                  "navigationEndpoint": {
+                                    "browseEndpoint": {
+                                      "browseId": "MPREb_zwdwliUWiJm",
+                                      "params": "ggMrGilPTEFLNXV5X2wySmRxUTlxLWFIU1FtUml6M05mSWtVMmtrYnhkMS1wcw%3D%3D",
+                                      "browseEndpointContextSupportedConfigs": {
+                                        "browseEndpointContextMusicConfig": {
+                                          "pageType": "MUSIC_PAGE_TYPE_ALBUM"
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              ]
+                            },
+                            "subtitle": {
+                              "runs": [
+                                {
+                                  "text": "2016"
+                                }
+                              ]
+                            },
+                            "navigationEndpoint": {
+                              "browseEndpoint": {
+                                "browseId": "MPREb_zwdwliUWiJm",
+                                "params": "ggMrGilPTEFLNXV5X2wySmRxUTlxLWFIU1FtUml6M05mSWtVMmtrYnhkMS1wcw%3D%3D",
+                                "browseEndpointContextSupportedConfigs": {
+                                  "browseEndpointContextMusicConfig": {
+                                    "pageType": "MUSIC_PAGE_TYPE_ALBUM"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "musicTwoRowItemRenderer": {
+                            "aspectRatio": "MUSIC_TWO_ROW_ITEM_THUMBNAIL_ASPECT_RATIO_SQUARE",
+                            "title": {
+                              "runs": [
+                                {
+                                  "text": "The King Of Limbs",
+                                  "navigationEndpoint": {
+                                    "browseEndpoint": {
+                                      "browseId": "MPREb_0MasdQ0OscT",
+                                      "params": "ggMrGilPTEFLNXV5X2treFM4cTFvYm5qaV9WamtXdHBnV2dwWkF6QWVQU1NBMA%3D%3D",
+                                      "browseEndpointContextSupportedConfigs": {
+                                        "browseEndpointContextMusicConfig": {
+                                          "pageType": "MUSIC_PAGE_TYPE_ALBUM"
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              ]
+                            },
+                            "subtitle": {
+                              "runs": [
+                                {
+                                  "text": "2011"
+                                }
+                              ]
+                            },
+                            "navigationEndpoint": {
+                              "browseEndpoint": {
+                                "browseId": "MPREb_0MasdQ0OscT",
+                                "params": "ggMrGilPTEFLNXV5X2treFM4cTFvYm5qaV9WamtXdHBnV2dwWkF6QWVQU1NBMA%3D%3D",
+                                "browseEndpointContextSupportedConfigs": {
+                                  "browseEndpointContextMusicConfig": {
+                                    "pageType": "MUSIC_PAGE_TYPE_ALBUM"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      ],
+                      "itemSize": "COLLECTION_STYLE_ITEM_SIZE_MEDIUM"
+                    }
+                  },
+                  {
+                    "musicCarouselShelfRenderer": {
+                      "header": {
+                        "musicCarouselShelfBasicHeaderRenderer": {
+                          "title": {
+                            "runs": [
+                              {
+                                "text": "Singles & EPs",
+                                "navigationEndpoint": {
+                                  "browseEndpoint": {
+                                    "browseId": "MPADUCr_iyUANcn9OX_yy9piYoLw",
+                                    "params": "ggMIegYIAhoCAQI%3D",
+                                    "browseEndpointContextSupportedConfigs": {
+                                      "browseEndpointContextMusicConfig": {
+                                        "pageType": "MUSIC_PAGE_TYPE_ARTIST_DISCOGRAPHY"
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "accessibilityData": {
+                            "accessibilityData": {
+                              "label": "Singles & EPs"
+                            }
+                          },
+                          "headerStyle": "MUSIC_CAROUSEL_SHELF_BASIC_HEADER_STYLE_DISPLAY_TWO",
+                          "moreContentButton": {
+                            "buttonRenderer": {
+                              "style": "STYLE_TEXT",
+                              "text": {
+                                "runs": [
+                                  {
+                                    "text": "More"
+                                  }
+                                ]
+                              },
+                              "navigationEndpoint": {
+                                "browseEndpoint": {
+                                  "browseId": "MPADUCr_iyUANcn9OX_yy9piYoLw",
+                                  "params": "ggMIegYIAhoCAQI%3D",
+                                  "browseEndpointContextSupportedConfigs": {
+                                    "browseEndpointContextMusicConfig": {
+                                      "pageType": "MUSIC_PAGE_TYPE_ARTIST_DISCOGRAPHY"
+                                    }
+                                  }
+                                }
+                              },
+                              "accessibilityData": {
+                                "accessibilityData": {
+                                  "label": "More"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "contents": [
+                        {
+                          "musicTwoRowItemRenderer": {
+                            "aspectRatio": "MUSIC_TWO_ROW_ITEM_THUMBNAIL_ASPECT_RATIO_SQUARE",
+                            "title": {
+                              "runs": [
+                                {
+                                  "text": "Follow Me Around",
+                                  "navigationEndpoint": {
+                                    "browseEndpoint": {
+                                      "browseId": "MPREb_i9VZdpk3p8K",
+                                      "params": "ggMrGilPTEFLNXV5X25GTkhKRHF6WVVycnI2cnVtM0liVFByRWlmcWoycWJodw%3D%3D",
+                                      "browseEndpointContextSupportedConfigs": {
+                                        "browseEndpointContextMusicConfig": {
+                                          "pageType": "MUSIC_PAGE_TYPE_ALBUM"
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              ]
+                            },
+                            "subtitle": {
+                              "runs": [
+                                {
+                                  "text": "Single"
+                                },
+                                {
+                                  "text": " • "
+                                },
+                                {
+                                  "text": "2021"
+                                }
+                              ]
+                            },
+                            "navigationEndpoint": {
+                              "browseEndpoint": {
+                                "browseId": "MPREb_i9VZdpk3p8K",
+                                "params": "ggMrGilPTEFLNXV5X25GTkhKRHF6WVVycnI2cnVtM0liVFByRWlmcWoycWJodw%3D%3D",
+                                "browseEndpointContextSupportedConfigs": {
+                                  "browseEndpointContextMusicConfig": {
+                                    "pageType": "MUSIC_PAGE_TYPE_ALBUM"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "musicTwoRowItemRenderer": {
+                            "aspectRatio": "MUSIC_TWO_ROW_ITEM_THUMBNAIL_ASPECT_RATIO_SQUARE",
+                            "title": {
+                              "runs": [
+                                {
+                                  "text": "If You Say the Word",
+                                  "navigationEndpoint": {
+                                    "browseEndpoint": {
+                                      "browseId": "MPREb_sVWv7q0mvtf",
+                                      "params": "ggMrGilPTEFLNXV5X25oYUxBcldaaGhER2lsZk80d0htVTFmRTNUTXhBV0JNRQ%3D%3D",
+                                      "browseEndpointContextSupportedConfigs": {
+                                        "browseEndpointContextMusicConfig": {
+                                          "pageType": "MUSIC_PAGE_TYPE_ALBUM"
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              ]
+                            },
+                            "subtitle": {
+                              "runs": [
+                                {
+                                  "text": "Single"
+                                },
+                                {
+                                  "text": " • "
+                                },
+                                {
+                                  "text": "2021"
+                                }
+                              ]
+                            },
+                            "navigationEndpoint": {
+                              "browseEndpoint": {
+                                "browseId": "MPREb_sVWv7q0mvtf",
+                                "params": "ggMrGilPTEFLNXV5X25oYUxBcldaaGhER2lsZk80d0htVTFmRTNUTXhBV0JNRQ%3D%3D",
+                                "browseEndpointContextSupportedConfigs": {
+                                  "browseEndpointContextMusicConfig": {
+                                    "pageType": "MUSIC_PAGE_TYPE_ALBUM"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      ],
+                      "itemSize": "COLLECTION_STYLE_ITEM_SIZE_MEDIUM"
+                    }
+                  },
+                  {
+                    "musicCarouselShelfRenderer": {
+                      "header": {
+                        "musicCarouselShelfBasicHeaderRenderer": {
+                          "title": {
+                            "runs": [
+                              {
+                                "text": "Videos",
+                                "navigationEndpoint": {
+                                  "browseEndpoint": {
+                                    "browseId": "VLOLAK5uy_le1qWrRECnoBQl1iEbmByHwfQUeIPYomY",
+                                    "params": "ggMCCAI%3D",
+                                    "browseEndpointContextSupportedConfigs": {
+                                      "browseEndpointContextMusicConfig": {
+                                        "pageType": "MUSIC_PAGE_TYPE_PLAYLIST"
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "accessibilityData": {
+                            "accessibilityData": {
+                              "label": "Videos"
+                            }
+                          },
+                          "headerStyle": "MUSIC_CAROUSEL_SHELF_BASIC_HEADER_STYLE_DISPLAY_TWO",
+                          "moreContentButton": {
+                            "buttonRenderer": {
+                              "style": "STYLE_TEXT",
+                              "text": {
+                                "runs": [
+                                  {
+                                    "text": "More"
+                                  }
+                                ]
+                              },
+                              "navigationEndpoint": {
+                                "browseEndpoint": {
+                                  "browseId": "VLOLAK5uy_le1qWrRECnoBQl1iEbmByHwfQUeIPYomY",
+                                  "params": "ggMCCAI%3D",
+                                  "browseEndpointContextSupportedConfigs": {
+                                    "browseEndpointContextMusicConfig": {
+                                      "pageType": "MUSIC_PAGE_TYPE_PLAYLIST"
+                                    }
+                                  }
+                                }
+                              },
+                              "accessibilityData": {
+                                "accessibilityData": {
+                                  "label": "More"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "contents": [
+                        {
+                          "musicTwoRowItemRenderer": {
+                            "aspectRatio": "MUSIC_TWO_ROW_ITEM_THUMBNAIL_ASPECT_RATIO_RECTANGLE_16_9",
+                            "title": {
+                              "runs": [
+                                {
+                                  "text": "Creep"
+                                }
+                              ]
+                            },
+                            "subtitle": {
+                              "runs": [
+                                {
+                                  "text": "Radiohead",
+                                  "navigationEndpoint": {
+                                    "browseEndpoint": {
+                                      "browseId": "UCr_iyUANcn9OX_yy9piYoLw",
+                                      "browseEndpointContextSupportedConfigs": {
+                                        "browseEndpointContextMusicConfig": {
+                                          "pageType": "MUSIC_PAGE_TYPE_ARTIST"
+                                        }
+                                      }
+                                    }
+                                  }
+                                },
+                                {
+                                  "text": " • "
+                                },
+                                {
+                                  "text": "1.6B views"
+                                }
+                              ]
+                            },
+                            "navigationEndpoint": {
+                              "watchEndpoint": {
+                                "videoId": "XFkzRNyygfk",
+                                "playlistId": "OLAK5uy_le1qWrRECnoBQl1iEbmByHwfQUeIPYomY",
+                                "index": 0,
+                                "playerParams": "0gcJCa4Bs75h_Tjp",
+                                "watchEndpointMusicSupportedConfigs": {
+                                  "watchEndpointMusicConfig": {
+                                    "musicVideoType": "MUSIC_VIDEO_TYPE_OMV"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "musicTwoRowItemRenderer": {
+                            "aspectRatio": "MUSIC_TWO_ROW_ITEM_THUMBNAIL_ASPECT_RATIO_RECTANGLE_16_9",
+                            "title": {
+                              "runs": [
+                                {
+                                  "text": "No Surprises"
+                                }
+                              ]
+                            },
+                            "subtitle": {
+                              "runs": [
+                                {
+                                  "text": "Radiohead",
+                                  "navigationEndpoint": {
+                                    "browseEndpoint": {
+                                      "browseId": "UCq19-LqvG35A-30oyAiPiqA",
+                                      "browseEndpointContextSupportedConfigs": {
+                                        "browseEndpointContextMusicConfig": {
+                                          "pageType": "MUSIC_PAGE_TYPE_USER_CHANNEL"
+                                        }
+                                      }
+                                    }
+                                  }
+                                },
+                                {
+                                  "text": " • "
+                                },
+                                {
+                                  "text": "366M views"
+                                }
+                              ]
+                            },
+                            "navigationEndpoint": {
+                              "watchEndpoint": {
+                                "videoId": "u5CVsCnxyXg",
+                                "playlistId": "OLAK5uy_le1qWrRECnoBQl1iEbmByHwfQUeIPYomY",
+                                "index": 1,
+                                "watchEndpointMusicSupportedConfigs": {
+                                  "watchEndpointMusicConfig": {
+                                    "musicVideoType": "MUSIC_VIDEO_TYPE_OMV"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      ],
+                      "itemSize": "COLLECTION_STYLE_ITEM_SIZE_MEDIUM"
+                    }
+                  },
+                  {
+                    "musicCarouselShelfRenderer": {
+                      "header": {
+                        "musicCarouselShelfBasicHeaderRenderer": {
+                          "title": {
+                            "runs": [
+                              {
+                                "text": "Fans might also like"
+                              }
+                            ]
+                          },
+                          "accessibilityData": {
+                            "accessibilityData": {
+                              "label": "Fans might also like"
+                            }
+                          },
+                          "headerStyle": "MUSIC_CAROUSEL_SHELF_BASIC_HEADER_STYLE_DISPLAY_TWO"
+                        }
+                      },
+                      "contents": [
+                        {
+                          "musicTwoRowItemRenderer": {
+                            "aspectRatio": "MUSIC_TWO_ROW_ITEM_THUMBNAIL_ASPECT_RATIO_SQUARE",
+                            "title": {
+                              "runs": [
+                                {
+                                  "text": "Fontaines D.C.",
+                                  "navigationEndpoint": {
+                                    "browseEndpoint": {
+                                      "browseId": "UC0nEcTGDKDsdF4KcCh3-NUQ",
+                                      "browseEndpointContextSupportedConfigs": {
+                                        "browseEndpointContextMusicConfig": {
+                                          "pageType": "MUSIC_PAGE_TYPE_ARTIST"
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              ]
+                            },
+                            "subtitle": {
+                              "runs": [
+                                {
+                                  "text": "5.57M monthly audience"
+                                }
+                              ]
+                            },
+                            "navigationEndpoint": {
+                              "browseEndpoint": {
+                                "browseId": "UC0nEcTGDKDsdF4KcCh3-NUQ",
+                                "browseEndpointContextSupportedConfigs": {
+                                  "browseEndpointContextMusicConfig": {
+                                    "pageType": "MUSIC_PAGE_TYPE_ARTIST"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      ],
+                      "itemSize": "COLLECTION_STYLE_ITEM_SIZE_MEDIUM"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

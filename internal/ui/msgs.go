@@ -11,12 +11,16 @@ import (
 	"github.com/mnprtstle/ymtui/internal/ytmusic"
 )
 
-// Searcher and Player are the slices of ytmusic.Client and player.Player the
+// Catalog and Player are the slices of ytmusic.Client and player.Player the
 // UI needs. In Go, interfaces are satisfied implicitly and belong to the
 // consumer: neither of those packages knows these interfaces exist, and tests
 // can pass fakes.
-type Searcher interface {
+type Catalog interface {
 	Search(ctx context.Context, query string) ([]ytmusic.Song, error)
+	SearchAlbums(ctx context.Context, query string) ([]ytmusic.Album, error)
+	SearchArtists(ctx context.Context, query string) ([]ytmusic.Artist, error)
+	Album(ctx context.Context, browseID string) (ytmusic.AlbumPage, error)
+	Artist(ctx context.Context, browseID string) (ytmusic.ArtistPage, error)
 }
 
 type Player interface {
@@ -30,7 +34,18 @@ type Player interface {
 type (
 	searchResultsMsg struct {
 		query string
-		songs []ytmusic.Song
+		tab   tab
+		rows  []row
+	}
+	// pageLoadedMsg carries an album or artist page; id says which request it
+	// answers, so a page the user already backed out of can be dropped.
+	pageLoadedMsg struct {
+		id   string
+		rows []row
+	}
+	pageErrMsg struct {
+		id  string
+		err error
 	}
 	// playerEventMsg wraps an mpv event delivered through program.Send.
 	playerEventMsg struct{ ev player.Event }
@@ -42,15 +57,58 @@ const cmdTimeout = 30 * time.Second // loadfile can wait on yt-dlp
 
 // searchCmd returns a tea.Cmd. Bubble Tea runs it in its own goroutine, so the
 // blocking network call never stalls Update.
-func searchCmd(s Searcher, query string) tea.Cmd {
+func searchCmd(c Catalog, query string, t tab) tea.Cmd {
 	return func() tea.Msg {
 		ctx, cancel := context.WithTimeout(context.Background(), cmdTimeout)
 		defer cancel()
-		songs, err := s.Search(ctx, query)
+		var (
+			rows []row
+			err  error
+		)
+		switch t {
+		case tabAlbums:
+			var albums []ytmusic.Album
+			albums, err = c.SearchAlbums(ctx, query)
+			rows = albumRows(albums)
+		case tabArtists:
+			var artists []ytmusic.Artist
+			artists, err = c.SearchArtists(ctx, query)
+			rows = artistRows(artists)
+		default:
+			var songs []ytmusic.Song
+			songs, err = c.Search(ctx, query)
+			rows = songRows(songs)
+		}
 		if err != nil {
 			return errMsg{fmt.Errorf("search %q: %w", query, err)}
 		}
-		return searchResultsMsg{query: query, songs: songs}
+		return searchResultsMsg{query: query, tab: t, rows: rows}
+	}
+}
+
+// albumCmd and artistCmd load a page. Unlike a search failure, a page failure
+// names the page so Update can remove the "Loading…" view it left behind.
+func albumCmd(c Catalog, id string) tea.Cmd {
+	return func() tea.Msg {
+		ctx, cancel := context.WithTimeout(context.Background(), cmdTimeout)
+		defer cancel()
+		page, err := c.Album(ctx, id)
+		if err != nil {
+			return pageErrMsg{id, fmt.Errorf("load album: %w", err)}
+		}
+		return pageLoadedMsg{id: id, rows: songRows(page.Songs)}
+	}
+}
+
+func artistCmd(c Catalog, id string) tea.Cmd {
+	return func() tea.Msg {
+		ctx, cancel := context.WithTimeout(context.Background(), cmdTimeout)
+		defer cancel()
+		page, err := c.Artist(ctx, id)
+		if err != nil {
+			return pageErrMsg{id, fmt.Errorf("load artist: %w", err)}
+		}
+		return pageLoadedMsg{id: id, rows: artistPageRows(page)}
 	}
 }
 
