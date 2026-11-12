@@ -35,7 +35,7 @@ func (m Model) viewPane() string {
 		lines = append(lines, m.queueTitle(), m.header(inner-2))
 		lines = append(lines, m.queueRows(inner-2)...)
 	} else {
-		lines = append(lines, m.input.View(), m.header(inner-2))
+		lines = append(lines, m.topLine(inner-2), m.header(inner-2))
 		lines = append(lines, m.resultRows(inner-2)...)
 	}
 
@@ -66,8 +66,33 @@ func columns(w int) (title, artist, album int) {
 	return title, artist, avail - title - artist
 }
 
+// tabsWidth is the width of the rendered tab strip: names plus 2-space gaps.
+const tabsWidth = 2 + len("Songs") + 2 + len("Albums") + 2 + len("Artists")
+
+// topLine is the first pane line: the search box and result tabs at the root,
+// a breadcrumb ("Radiohead › OK Computer") once the user has drilled in.
+func (m Model) topLine(w int) string {
+	if len(m.stack) > 1 {
+		var crumbs []string
+		for _, v := range m.stack[1:] {
+			crumbs = append(crumbs, v.title)
+		}
+		return fit(boldStyle.Render(strings.Join(crumbs, " › ")), w)
+	}
+	var tabs []string
+	for i, name := range tabNames {
+		if tab(i) == m.tab {
+			tabs = append(tabs, accentStyle.Bold(true).Underline(true).Render(name))
+		} else {
+			tabs = append(tabs, dimStyle.Render(name))
+		}
+	}
+	return fit(m.input.View()+"  "+strings.Join(tabs, "  "), w)
+}
+
 func (m Model) header(w int) string {
-	return headerStyle.Render(m.rowText(w, " ", "#", "Title", "Artist", "Album", "Time"))
+	h := m.stack[len(m.stack)-1].header
+	return headerStyle.Render(m.rowText(w, " ", "#", h[0], h[1], h[2], h[3]))
 }
 
 // rowText lays out one table row. Hidden columns are skipped.
@@ -85,23 +110,34 @@ func (m Model) rowText(w int, marker, num, title, artist, album, dur string) str
 }
 
 func (m Model) resultRows(w int) []string {
-	if len(m.songs) == 0 {
-		msg := "No results yet. Press / to search."
-		if m.searching {
+	v := m.stack[len(m.stack)-1]
+	if len(v.rows) == 0 {
+		msg := "Nothing here."
+		switch {
+		case v.loading:
+			msg = "Loading…"
+		case len(m.stack) == 1 && m.searching:
 			msg = "Searching…"
+		case len(m.stack) == 1 && m.query == "":
+			msg = "No results yet. Press / to search."
+		case len(m.stack) == 1:
+			msg = "No results."
 		}
 		return []string{dimStyle.Render(msg)}
 	}
-	end := min(m.offset+m.rows(), len(m.songs))
-	out := make([]string, 0, end-m.offset)
-	for i := m.offset; i < end; i++ {
-		s := m.songs[i]
+	end := min(v.offset+m.rows(), len(v.rows))
+	out := make([]string, 0, end-v.offset)
+	for i := v.offset; i < end; i++ {
+		r := v.rows[i]
 		marker := " "
-		if m.now != nil && m.now.VideoID == s.VideoID {
+		switch {
+		case r.kind == rowSong && m.now != nil && m.now.VideoID == r.song.VideoID:
 			marker = "♪"
+		case r.kind != rowSong:
+			marker = "›" // opens a page
 		}
-		line := m.rowText(w, marker, fmt.Sprint(i+1), s.Title, s.Artists, s.Album, s.Duration)
-		if i == m.cursor {
+		line := m.rowText(w, marker, fmt.Sprint(i+1), r.cells[0], r.cells[1], r.cells[2], r.cells[3])
+		if i == v.cursor {
 			line = cursorStyle.Render(line)
 		}
 		out = append(out, line)
@@ -196,9 +232,9 @@ func (m Model) progress(w int) string {
 }
 
 func (m Model) viewStatus() string {
-	label, hints := " NORMAL ", "j/k move  enter play  a add  n/p next/prev  s shuffle  r repeat  Q queue  space pause  / search  q quit"
+	label, hints := " NORMAL ", "j/k move  l open/play  h back  tab type  a add  n/p next/prev  s shuffle  r repeat  Q queue  space pause  / search  q quit"
 	if m.showQueue {
-		hints = "j/k move  enter play  d remove  n/p next/prev  s shuffle  r repeat  Q results  q quit"
+		hints = "j/k move  enter play  d remove  n/p next/prev  s shuffle  r repeat  Q/h results  q quit"
 	}
 	if m.mode == modeSearch {
 		label, hints = " SEARCH ", "enter search  esc cancel"
