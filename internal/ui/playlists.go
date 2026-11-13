@@ -234,13 +234,13 @@ func (m Model) viewOverlay(w, h int) string {
 	switch m.mode {
 	case modePicker:
 		p := m.picker
-		lines = append(lines, boldStyle.Render("Add to playlist"), dimStyle.Render(fit(p.song.Title, 34)), "")
+		lines = append(lines, accentStyle.Render("▌")+boldStyle.Render("Add to playlist"), dimStyle.Render(fit(p.song.Title, 34)), "")
 		for i, pl := range p.lists {
 			lines = append(lines, pickLine(i == p.cursor, fmt.Sprintf("%s (%d)", pl.Name, len(pl.Songs))))
 		}
 		lines = append(lines, pickLine(p.cursor == p.newPlaylistEntry(), "+ New playlist…"))
 	case modeName:
-		lines = append(lines, boldStyle.Render("New playlist"), "", m.nameInput.View())
+		lines = append(lines, accentStyle.Render("▌")+boldStyle.Render("New playlist"), "", m.nameInput.View())
 	}
 	box := lipgloss.NewStyle().
 		Border(lipgloss.RoundedBorder()).
@@ -253,7 +253,7 @@ func (m Model) viewOverlay(w, h int) string {
 func pickLine(selected bool, label string) string {
 	label = fit(label, 34)
 	if selected {
-		return cursorStyle.Render("▌ " + label)
+		return cursorStyle.Render("▌ " + label + " ")
 	}
-	return "  " + label
+	return "  " + label + " "
 }

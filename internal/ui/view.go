@@ -68,8 +68,15 @@ func columns(w int) (title, artist, album int) {
 	return title, artist, avail - title - artist
 }
 
-// tabsWidth is the width of the rendered tab strip: names plus 2-space gaps.
-const tabsWidth = 2 + len("Songs") + 2 + len("Albums") + 2 + len("Artists")
+// tabsWidth is the width of the rendered tab strip: each name padded by one
+// space on both sides (the pill), joined by a single space.
+var tabsWidth = func() int {
+	n := len(tabNames) - 1
+	for _, name := range tabNames {
+		n += len(name) + 2
+	}
+	return n
+}()
 
 // topLine is the first pane line: the search box and result tabs at the root,
 // a breadcrumb ("Radiohead › OK Computer") once the user has drilled in.
@@ -79,22 +86,24 @@ func (m Model) topLine(w int) string {
 		for _, v := range m.stack[1:] {
 			crumbs = append(crumbs, v.title)
 		}
-		return fit(boldStyle.Render(strings.Join(crumbs, " › ")), w)
+		return fit(boldStyle.Render(strings.Join(crumbs, accentStyle.Render(" › "))), w)
 	}
 	var tabs []string
 	for i, name := range tabNames {
 		if tab(i) == m.tab {
-			tabs = append(tabs, accentStyle.Bold(true).Underline(true).Render(name))
+			tabs = append(tabs, tabOn.Render(name))
 		} else {
-			tabs = append(tabs, dimStyle.Render(name))
+			tabs = append(tabs, tabOff.Render(name))
 		}
 	}
-	return fit(m.input.View()+"  "+strings.Join(tabs, "  "), w)
+	return fit(m.input.View()+"  "+strings.Join(tabs, " "), w)
 }
 
 func (m Model) header(w int) string {
 	h := m.stack[len(m.stack)-1].header
-	return headerStyle.Render(m.rowText(w, " ", "#", h[0], h[1], h[2], h[3]))
+	up := func(s string) string { return strings.ToUpper(s) }
+	line := m.rowText(w, " ", "#", up(h[0]), up(h[1]), up(h[2]), up(h[3]))
+	return headerStyle.Render(fit(line, w)) // fit pads, so the band spans the pane
 }
 
 // rowText lays out one table row. Hidden columns are skipped.
@@ -142,17 +151,29 @@ func (m Model) resultRows(w int) []string {
 		case r.kind != rowSong:
 			marker = "›" // opens a page
 		}
-		line := m.rowText(w, marker, fmt.Sprint(i+1), r.cells[0], r.cells[1], r.cells[2], r.cells[3])
-		if i == v.cursor {
-			line = cursorStyle.Render(line)
-		}
-		out = append(out, line)
+		line := fit(m.rowText(w, marker, fmt.Sprint(i+1), r.cells[0], r.cells[1], r.cells[2], r.cells[3]), w)
+		out = append(out, styleRow(line, i == v.cursor, marker))
 	}
 	return out
 }
 
+// styleRow colors a row that has already been padded to the pane width. The
+// cursor row gets a background across the full width; the playing track is
+// amber; rows that open a page get a red ›.
+func styleRow(line string, cursor bool, marker string) string {
+	switch {
+	case cursor:
+		return cursorStyle.Render(line)
+	case marker == "♪":
+		return playingStyle.Render(line)
+	case marker == "›":
+		return accentStyle.Render("›") + line[len("›"):]
+	}
+	return line
+}
+
 func (m Model) queueTitle() string {
-	return boldStyle.Render("Queue") + dimStyle.Render(fmt.Sprintf("  %d tracks", m.queue.Len()))
+	return accentStyle.Render("▌") + boldStyle.Render("Queue") + dimStyle.Render(fmt.Sprintf("  %d tracks", m.queue.Len()))
 }
 
 func (m Model) queueRows(w int) []string {
@@ -169,11 +190,8 @@ func (m Model) queueRows(w int) []string {
 		if i == cur {
 			marker = "♪"
 		}
-		line := m.rowText(w, marker, fmt.Sprint(i+1), s.Title, s.Artists, s.Album, s.Duration)
-		if i == m.qCursor {
-			line = cursorStyle.Render(line)
-		}
-		out = append(out, line)
+		line := fit(m.rowText(w, marker, fmt.Sprint(i+1), s.Title, s.Artists, s.Album, s.Duration), w)
+		out = append(out, styleRow(line, i == m.qCursor, marker))
 	}
 	return out
 }
@@ -213,13 +231,13 @@ func (m Model) viewBar() string {
 	if m.paused {
 		state = "⏸"
 	}
-	right := fmt.Sprintf("%s  %d%%", state, int(m.volume))
+	right := accentStyle.Render(state) + dimStyle.Render(fmt.Sprintf("  %d%%", int(m.volume)))
 	if tag := m.queueTag(); tag != "" {
-		right = tag + "  " + right
+		right = amberStyle.Render(tag) + "  " + right
 	}
 
 	titleW := max(w-ansi.StringWidth(right)-1, 1)
-	line1 := boldStyle.Render(fit(title, titleW)) + " " + dimStyle.Render(right)
+	line1 := boldStyle.Render(fit(title, titleW)) + " " + right
 	line2 := dimStyle.Render(fit(sub, w))
 	return barStyle.Width(m.width - 2).Render(line1 + "\n" + line2 + "\n" + m.progress(w))
 }
@@ -232,9 +250,9 @@ func (m Model) progress(w int) string {
 		frac = min(m.pos/m.dur, 1)
 	}
 	filled := int(frac * float64(barW-1))
-	bar := accentStyle.Render(strings.Repeat("━", filled)+"●") +
+	bar := accentStyle.Render(strings.Repeat("━", filled)) + amberStyle.Render("●") +
 		dimStyle.Render(strings.Repeat("─", barW-filled-1))
-	return left + " " + bar + " " + right
+	return amberStyle.Render(left) + " " + bar + " " + dimStyle.Render(right)
 }
 
 func (m Model) viewStatus() string {
@@ -261,13 +279,27 @@ func (m Model) viewStatus() string {
 	case m.err != nil:
 		text = errStyle.Render(m.err.Error())
 	case m.notice != "":
-		text = accentStyle.Render(m.notice)
+		text = amberStyle.Render(m.notice)
 	case m.searching:
 		text = dimStyle.Render("searching…")
 	default:
-		text = dimStyle.Render(hints)
+		text = styleHints(hints)
 	}
 	return fit(left+" "+text, m.width)
+}
+
+// styleHints colors key hints. Hints are "key action" pairs separated by two
+// spaces; the key (first word) is amber and bold, the action dim.
+func styleHints(h string) string {
+	pairs := strings.Split(h, "  ")
+	for i, p := range pairs {
+		if k, rest, ok := strings.Cut(p, " "); ok {
+			pairs[i] = keyStyle.Render(k) + dimStyle.Render(" "+rest)
+		} else {
+			pairs[i] = dimStyle.Render(p)
+		}
+	}
+	return strings.Join(pairs, dimStyle.Render("  "))
 }
 
 // fit truncates s to w cells (with …) and pads it with spaces to exactly w.
