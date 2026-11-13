@@ -42,15 +42,30 @@ func (m Model) viewPane() string {
 		lines = append(lines, m.resultRows(inner-2)...)
 	}
 
-	style := paneStyle
+	border := lipgloss.TerminalColor(dim)
 	if m.mode != modeSearch {
-		style = focusedPaneStyle
+		border = accent
 	}
-	return style.
-		Width(inner).
-		Height(m.height-barHeight-statusHeight-2).
-		Padding(0, 1).
-		Render(strings.Join(lines, "\n"))
+	title, right := m.paneTitle()
+	body := strings.Split(strings.Join(lines, "\n"), "\n") // the overlay is one multi-line element
+	return box(title, right, body, m.width, m.height-barHeight-statusHeight, border)
+}
+
+// paneTitle is the text set into the pane's top border: what is on screen,
+// and the cursor position within it.
+func (m Model) paneTitle() (title, right string) {
+	if m.showQueue {
+		return "Queue", fmt.Sprintf("%d/%d", min(m.qCursor+1, m.queue.Len()), m.queue.Len())
+	}
+	v := m.cur()
+	title = v.title
+	if len(m.stack) == 1 {
+		title = tabNames[m.tab] // the root is the search view; name it by result type
+	}
+	if n := len(v.rows); n > 0 {
+		right = fmt.Sprintf("%d/%d", v.cursor+1, n)
+	}
+	return title, right
 }
 
 // columns returns the widths of title, artist and album for a content width.
@@ -228,19 +243,17 @@ func (m Model) viewBar() string {
 	case m.title != "":
 		title = m.title
 	}
-	state := "▶"
+	state := "▶ Playing"
 	if m.paused {
-		state = "⏸"
+		state = "⏸ Paused"
 	}
-	right := accentStyle.Render(state) + dimStyle.Render(fmt.Sprintf("  %d%%", int(m.volume)))
-	if tag := m.queueTag(); tag != "" {
-		right = amberStyle.Render(tag) + "  " + right
-	}
+	right := volumeMeter(m.volume) + dimStyle.Render(fmt.Sprintf(" %3d%%", int(m.volume)))
 
 	titleW := max(w-ansi.StringWidth(right)-1, 1)
 	line1 := boldStyle.Render(fit(title, titleW)) + " " + right
 	line2 := dimStyle.Render(fit(sub, w))
-	return barStyle.Width(m.width - 2).Render(line1 + "\n" + line2 + "\n" + m.progress(w))
+	// State and queue info live in the border, as in btop.
+	return box(state, m.queueTag(), []string{line1, line2, m.progress(w)}, m.width, barHeight, redDeep)
 }
 
 func (m Model) progress(w int) string {
@@ -251,8 +264,13 @@ func (m Model) progress(w int) string {
 		frac = min(m.pos/m.dur, 1)
 	}
 	filled := int(frac * float64(barW-1))
-	bar := accentStyle.Render(strings.Repeat("━", filled)) + amberStyle.Render("●") +
-		dimStyle.Render(strings.Repeat("─", barW-filled-1))
+	// Each filled cell is colored by its position along the whole bar, so the
+	// bar warms from deep red to amber as the song progresses.
+	var sb strings.Builder
+	for i := 0; i < filled; i++ {
+		sb.WriteString(lipgloss.NewStyle().Foreground(gradient(float64(i) / float64(barW-1))).Render("━"))
+	}
+	bar := sb.String() + amberStyle.Render("●") + dimStyle.Render(strings.Repeat("─", barW-filled-1))
 	return amberStyle.Render(left) + " " + bar + " " + dimStyle.Render(right)
 }
 

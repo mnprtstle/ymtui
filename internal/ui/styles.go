@@ -41,16 +41,6 @@ var (
 	// used everywhere else.
 	errStyle = lipgloss.NewStyle().Bold(true).Padding(0, 1).Foreground(onAccent).Background(accent)
 
-	paneStyle = lipgloss.NewStyle().
-			Border(lipgloss.RoundedBorder()).
-			BorderForeground(dim)
-	focusedPaneStyle = paneStyle.BorderForeground(accent)
-
-	barStyle = lipgloss.NewStyle().
-			Border(lipgloss.RoundedBorder()).
-			BorderForeground(redDeep).
-			Padding(0, 1)
-
 	modeStyle = lipgloss.NewStyle().Bold(true).Padding(0, 1).
 			Foreground(onAccent).
 			Background(accent)
