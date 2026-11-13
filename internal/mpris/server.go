@@ -8,24 +8,26 @@ import (
 
 	"github.com/godbus/dbus/v5"
 	"github.com/godbus/dbus/v5/introspect"
-	"github.com/godbus/dbus/v5/prop"
 )
 
 const (
-	busName    = "org.mpris.MediaPlayer2.ymtui"
+	busName    = "org.mpris.MediaPlayer2"
 	objectPath = "/org/mpris/MediaPlayer2"
 	rootIface  = "org.mpris.MediaPlayer2"
 	playIface  = "org.mpris.MediaPlayer2.Player"
+	propsIface = "org.freedesktop.DBus.Properties"
 )
+
+const ownName = busName + ".ymtui"
 
 // Server owns the bus name and the exported object.
 type Server struct {
 	conn   *dbus.Conn
-	props  *prop.Properties
 	handle func(Command)
 
-	mu   sync.Mutex // guards last
-	last State
+	mu    sync.Mutex // guards props and last
+	props map[string]map[string]dbus.Variant
+	last  State
 }
 
 // root implements org.mpris.MediaPlayer2. Go exports a value's methods to
@@ -67,12 +69,97 @@ func (p player) SetPosition(track dbus.ObjectPath, pos int64) *dbus.Error {
 
 func (player) OpenUri(string) *dbus.Error { return nil }
 
+// props implements org.freedesktop.DBus.Properties. godbus ships a helper
+// for this (the prop package), but it merges new values into the stored one
+// in place, which leaves stale keys in the Metadata map and races with a
+// client reading it. Here every value is an immutable dbus.Variant that is
+// replaced wholesale under the mutex.
+type props struct{ s *Server }
+
+func (p props) Get(iface, name string) (dbus.Variant, *dbus.Error) {
+	p.s.mu.Lock()
+	defer p.s.mu.Unlock()
+	v, ok := p.s.props[iface][name]
+	if !ok {
+		return dbus.Variant{}, dbus.MakeFailedError(fmt.Errorf("no such property %s.%s", iface, name))
+	}
+	return v, nil
+}
+
+func (p props) GetAll(iface string) (map[string]dbus.Variant, *dbus.Error) {
+	p.s.mu.Lock()
+	defer p.s.mu.Unlock()
+	out := make(map[string]dbus.Variant, len(p.s.props[iface]))
+	for k, v := range p.s.props[iface] {
+		out[k] = v
+	}
+	return out, nil
+}
+
+// Set only accepts Player.Volume; everything else is read-only.
+func (p props) Set(iface, name string, v dbus.Variant) *dbus.Error {
+	vol, ok := v.Value().(float64)
+	if iface != playIface || name != "Volume" || !ok {
+		return dbus.MakeFailedError(fmt.Errorf("%s.%s is not writable", iface, name))
+	}
+	p.s.handle(Command{Kind: SetVolume, Volume: min(max(vol, 0), 1)}) // the UI reports the applied value via SetState
+	return nil
+}
+
 // send hands a command to the callback. The callback must not block: godbus
 // calls our methods on its own goroutine, and the UI side just does
 // program.Send.
 func (s *Server) send(c Command) *dbus.Error {
 	s.handle(c)
 	return nil
+}
+
+// initialProps are the values before the first SetState.
+func initialProps() map[string]map[string]dbus.Variant {
+	v := dbus.MakeVariant
+	st := State{}
+	return map[string]map[string]dbus.Variant{
+		rootIface: {
+			"CanQuit":             v(false),
+			"CanRaise":            v(false),
+			"HasTrackList":        v(false),
+			"Identity":            v("ymtui"),
+			"SupportedUriSchemes": v([]string{}),
+			"SupportedMimeTypes":  v([]string{}),
+		},
+		playIface: {
+			"PlaybackStatus": v(st.status()),
+			"LoopStatus":     v("None"),
+			"Rate":           v(1.0),
+			"MinimumRate":    v(1.0),
+			"MaximumRate":    v(1.0),
+			"Shuffle":        v(false),
+			"Metadata":       v(st.metadata()),
+			"Volume":         v(1.0),
+			"Position":       v(int64(0)),
+			"CanGoNext":      v(false),
+			"CanGoPrevious":  v(false),
+			"CanPlay":        v(true),
+			"CanPause":       v(true),
+			"CanSeek":        v(true),
+			"CanControl":     v(true),
+		},
+	}
+}
+
+// introspectProps lists an interface's properties for the introspection XML.
+func introspectProps(m map[string]dbus.Variant, writable ...string) []introspect.Property {
+	var out []introspect.Property
+	for name, v := range m {
+		access := "read"
+		for _, w := range writable {
+			if w == name {
+				access = "readwrite"
+			}
+		}
+		out = append(out, introspect.Property{Name: name, Type: v.Signature().String(), Access: access})
+	}
+	return out
 }
 
 // Start claims the MPRIS name on the session bus. handle is called from a
@@ -82,65 +169,24 @@ func Start(handle func(Command)) (*Server, error) {
 	if err != nil {
 		return nil, fmt.Errorf("connect to session bus: %w", err)
 	}
-	s := &Server{conn: conn, handle: handle}
+	s := &Server{conn: conn, handle: handle, props: initialProps()}
 
-	// Properties: the map is interface -> name -> value. EmitTrue sends a
-	// PropertiesChanged signal on change; Position must not (MPRIS says
-	// clients poll it).
-	ro := func(v any, emit prop.EmitType) *prop.Prop {
-		return &prop.Prop{Value: v, Writable: false, Emit: emit}
-	}
-	s.props, err = prop.Export(conn, objectPath, map[string]map[string]*prop.Prop{
-		rootIface: {
-			"CanQuit":             ro(false, prop.EmitFalse),
-			"CanRaise":            ro(false, prop.EmitFalse),
-			"HasTrackList":        ro(false, prop.EmitFalse),
-			"Identity":            ro("ymtui", prop.EmitFalse),
-			"SupportedUriSchemes": ro([]string{}, prop.EmitFalse),
-			"SupportedMimeTypes":  ro([]string{}, prop.EmitFalse),
-		},
-		playIface: {
-			"PlaybackStatus": ro("Stopped", prop.EmitTrue),
-			"LoopStatus":     ro("None", prop.EmitFalse),
-			"Rate":           ro(1.0, prop.EmitFalse),
-			"MinimumRate":    ro(1.0, prop.EmitFalse),
-			"MaximumRate":    ro(1.0, prop.EmitFalse),
-			"Shuffle":        ro(false, prop.EmitFalse),
-			"Metadata":       ro(State{}.metadata(), prop.EmitTrue),
-			"Volume": {
-				Value:    1.0,
-				Writable: true,
-				Emit:     prop.EmitTrue,
-				Callback: func(c *prop.Change) *dbus.Error {
-					if v, ok := c.Value.(float64); ok {
-						s.handle(Command{Kind: SetVolume, Volume: min(max(v, 0), 1)})
-					}
-					return nil // the UI reports the applied volume via SetState
-				},
-			},
-			"Position":      ro(int64(0), prop.EmitFalse),
-			"CanGoNext":     ro(false, prop.EmitTrue),
-			"CanGoPrevious": ro(false, prop.EmitTrue),
-			"CanPlay":       ro(true, prop.EmitFalse),
-			"CanPause":      ro(true, prop.EmitFalse),
-			"CanSeek":       ro(true, prop.EmitFalse),
-			"CanControl":    ro(true, prop.EmitFalse),
-		},
-	})
-	if err != nil {
+	fail := func(format string, args ...any) (*Server, error) {
 		conn.Close()
-		return nil, fmt.Errorf("export properties: %w", err)
+		return nil, fmt.Errorf(format, args...)
 	}
-
-	// Methods, plus the introspection XML that tools like busctl read.
 	if err := conn.Export(root{s}, objectPath, rootIface); err != nil {
-		conn.Close()
-		return nil, fmt.Errorf("export %s: %w", rootIface, err)
+		return fail("export %s: %w", rootIface, err)
 	}
+	// ExportWithMap lets the Go method SeekBy answer to the D-Bus name Seek.
 	if err := conn.ExportWithMap(player{s}, map[string]string{"SeekBy": "Seek"}, objectPath, playIface); err != nil {
-		conn.Close()
-		return nil, fmt.Errorf("export %s: %w", playIface, err)
+		return fail("export %s: %w", playIface, err)
 	}
+	if err := conn.Export(props{s}, objectPath, propsIface); err != nil {
+		return fail("export %s: %w", propsIface, err)
+	}
+
+	// Introspection XML, which busctl and friends read.
 	playMethods := introspect.Methods(player{})
 	for i := range playMethods {
 		if playMethods[i].Name == "SeekBy" {
@@ -151,55 +197,62 @@ func Start(handle func(Command)) (*Server, error) {
 		Name: objectPath,
 		Interfaces: []introspect.Interface{
 			introspect.IntrospectData,
-			prop.IntrospectData,
-			{Name: rootIface, Methods: introspect.Methods(root{}), Properties: s.props.Introspection(rootIface)},
-			{Name: playIface, Methods: playMethods, Properties: s.props.Introspection(playIface)},
+			{Name: propsIface, Methods: introspect.Methods(props{}), Signals: []introspect.Signal{{
+				Name: "PropertiesChanged",
+				Args: []introspect.Arg{
+					{Name: "interface_name", Type: "s"},
+					{Name: "changed_properties", Type: "a{sv}"},
+					{Name: "invalidated_properties", Type: "as"},
+				},
+			}}},
+			{Name: rootIface, Methods: introspect.Methods(root{}), Properties: introspectProps(s.props[rootIface])},
+			{Name: playIface, Methods: playMethods, Properties: introspectProps(s.props[playIface], "Volume")},
 		},
 	}
 	if err := conn.Export(introspect.NewIntrospectable(node), objectPath, "org.freedesktop.DBus.Introspectable"); err != nil {
-		conn.Close()
-		return nil, fmt.Errorf("export introspection: %w", err)
+		return fail("export introspection: %w", err)
 	}
 
-	reply, err := conn.RequestName(busName, dbus.NameFlagDoNotQueue)
+	reply, err := conn.RequestName(ownName, dbus.NameFlagDoNotQueue)
 	if err != nil {
-		conn.Close()
-		return nil, fmt.Errorf("request name %s: %w", busName, err)
+		return fail("request name %s: %w", ownName, err)
 	}
 	if reply != dbus.RequestNameReplyPrimaryOwner {
-		conn.Close()
-		return nil, fmt.Errorf("name %s is already taken (is ymtui running twice?)", busName)
+		return fail("name %s is already taken (is ymtui running twice?)", ownName)
 	}
 	return s, nil
 }
 
 // SetState publishes a new state. Only properties that changed are written,
-// so clients get PropertiesChanged signals just when something is new.
-// It is cheap (no waiting on clients) and safe to call from any goroutine.
+// and a PropertiesChanged signal goes out for them (Position is never
+// signalled: MPRIS says clients poll it). It is safe to call from any
+// goroutine and does not wait for clients.
 func (s *Server) SetState(st State) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	old := s.last
 	s.last = st
 
-	set := func(name string, v any) { s.props.SetMust(playIface, name, v) }
-	if st.status() != old.status() {
-		set("PlaybackStatus", st.status())
+	changed := map[string]dbus.Variant{}
+	set := func(name string, v any, signal bool) {
+		nv := dbus.MakeVariant(v)
+		if reflect.DeepEqual(s.props[playIface][name].Value(), v) {
+			return
+		}
+		s.props[playIface][name] = nv
+		if signal {
+			changed[name] = nv
+		}
 	}
-	if !reflect.DeepEqual(st.metadata(), old.metadata()) {
-		set("Metadata", st.metadata())
-	}
-	if st.Volume != old.Volume {
-		set("Volume", st.Volume)
-	}
-	if st.CanNext != old.CanNext {
-		set("CanGoNext", st.CanNext)
-	}
-	if st.CanPrev != old.CanPrev {
-		set("CanGoPrevious", st.CanPrev)
-	}
-	if st.Position != old.Position {
-		set("Position", st.Position.Microseconds())
+	set("PlaybackStatus", st.status(), true)
+	set("Metadata", st.metadata(), true)
+	set("Volume", st.Volume, true)
+	set("CanGoNext", st.CanNext, true)
+	set("CanGoPrevious", st.CanPrev, true)
+	set("Position", st.Position.Microseconds(), false)
+
+	if len(changed) > 0 {
+		// Emit only queues the message, so holding the mutex is fine.
+		_ = s.conn.Emit(objectPath, propsIface+".PropertiesChanged", playIface, changed, []string{})
 	}
 }
 
