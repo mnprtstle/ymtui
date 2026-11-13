@@ -1,6 +1,11 @@
 package ui
 
-import "github.com/charmbracelet/lipgloss"
+import (
+	"strings"
+
+	"github.com/charmbracelet/lipgloss"
+	"github.com/charmbracelet/x/ansi"
+)
 
 // Theme: "The Batman" (2022). Rain-soaked Gotham noir: near-black, blood red
 // as the one accent, and a sodium-streetlight amber for secondary details
@@ -15,6 +20,7 @@ var (
 	rowBG    = lipgloss.AdaptiveColor{Light: "#F6D9DC", Dark: "#3A1216"} // dried blood: cursor row
 	bandBG   = lipgloss.AdaptiveColor{Light: "#ECECEC", Dark: "#171A20"} // gotham blue-black: header band
 	onAccent = lipgloss.AdaptiveColor{Light: "#FFFFFF", Dark: "#0B0B0D"} // text on a red badge
+	canvas   = lipgloss.AdaptiveColor{Light: "#F4F0EC", Dark: "#0B0D12"} // the whole screen: Gotham night
 	redDeep  = lipgloss.AdaptiveColor{Light: "#D98C92", Dark: "#7A1B22"} // quiet red for borders
 )
 
@@ -55,3 +61,39 @@ var (
 
 	keyStyle = lipgloss.NewStyle().Bold(true).Foreground(amber)
 )
+
+// bgSeq is the escape sequence that switches on the canvas background for
+// the terminal's color profile. We let lipgloss render one marker character
+// and keep what comes before it, so profile and adaptive-color handling stay
+// lipgloss's job. It is empty when colors are off (e.g. in tests), which
+// disables painting entirely.
+func bgSeq() string {
+	const marker = "\x00"
+	out := lipgloss.NewStyle().Background(canvas).Render(marker)
+	i := strings.Index(out, marker)
+	if i <= 0 {
+		return ""
+	}
+	return out[:i]
+}
+
+// paint fills the whole w x h screen with the canvas background. Styled
+// segments end with a reset ("\x1b[0m") that would clear the background, so
+// the sequence is re-applied after every reset; each line is then padded to
+// the full width, and blank lines fill the height.
+func paint(frame string, w, h int) string {
+	bg := bgSeq()
+	if bg == "" {
+		return frame
+	}
+	const reset = "\x1b[0m"
+	lines := strings.Split(frame, "\n")
+	for len(lines) < h {
+		lines = append(lines, "")
+	}
+	for i, l := range lines {
+		pad := strings.Repeat(" ", max(w-ansi.StringWidth(l), 0))
+		lines[i] = bg + strings.ReplaceAll(l, reset, reset+bg) + pad + reset
+	}
+	return strings.Join(lines, "\n")
+}

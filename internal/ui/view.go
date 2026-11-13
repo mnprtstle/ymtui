@@ -25,7 +25,8 @@ func (m Model) View() string {
 	if m.width == 0 {
 		return "" // no WindowSizeMsg yet
 	}
-	return lipgloss.JoinVertical(lipgloss.Left, m.viewPane(), m.viewBar(), m.viewStatus())
+	frame := lipgloss.JoinVertical(lipgloss.Left, m.viewPane(), m.viewBar(), m.viewStatus())
+	return paint(frame, m.width, m.height)
 }
 
 func (m Model) viewPane() string {
