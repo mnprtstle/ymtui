@@ -4,13 +4,15 @@ package ytmusic
 
 import "fmt"
 
-// Song is one track from a search result.
+// Song is one track from a search result. The json tags exist because
+// internal/store saves songs to disk; they keep the file format independent of
+// Go field names.
 type Song struct {
-	VideoID  string
-	Title    string
-	Artists  string // as displayed, e.g. "Radiohead"
-	Album    string // empty for videos and singles without an album
-	Duration string // as displayed, e.g. "3:11"
+	VideoID  string `json:"id"`
+	Title    string `json:"title"`
+	Artists  string `json:"artists"`            // as displayed, e.g. "Radiohead"
+	Album    string `json:"album,omitempty"`    // empty for videos and singles without an album
+	Duration string `json:"duration,omitempty"` // as displayed, e.g. "3:11"
 }
 
 // String formats the song as one line for the CLI.

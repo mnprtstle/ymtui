@@ -31,7 +31,9 @@ func (m Model) View() string {
 func (m Model) viewPane() string {
 	inner := m.width - 2
 	var lines []string
-	if m.showQueue {
+	if m.mode == modePicker || m.mode == modeName {
+		lines = []string{m.viewOverlay(inner-2, m.height-barHeight-statusHeight-4)}
+	} else if m.showQueue {
 		lines = append(lines, m.queueTitle(), m.header(inner-2))
 		lines = append(lines, m.queueRows(inner-2)...)
 	} else {
@@ -40,7 +42,7 @@ func (m Model) viewPane() string {
 	}
 
 	style := paneStyle
-	if m.mode == modeNormal {
+	if m.mode != modeSearch {
 		style = focusedPaneStyle
 	}
 	return style.
@@ -114,6 +116,10 @@ func (m Model) resultRows(w int) []string {
 	if len(v.rows) == 0 {
 		msg := "Nothing here."
 		switch {
+		case v.src == srcPlaylists:
+			msg = "No playlists yet. Press c to create one, or A on a song."
+		case v.src == srcPlaylist:
+			msg = "Empty playlist. Press A on any song to add it."
 		case v.loading:
 			msg = "Loading…"
 		case len(m.stack) == 1 && m.searching:
@@ -232,12 +238,22 @@ func (m Model) progress(w int) string {
 }
 
 func (m Model) viewStatus() string {
-	label, hints := " NORMAL ", "j/k move  l open/play  h back  tab type  a add  n/p next/prev  s shuffle  r repeat  Q queue  space pause  / search  q quit"
-	if m.showQueue {
-		hints = "j/k move  enter play  d remove  n/p next/prev  s shuffle  r repeat  Q/h results  q quit"
+	label, hints := " NORMAL ", "j/k move  l open/play  h back  tab type  a queue  A playlist  P playlists  n/p next/prev  s shuffle  r repeat  Q queue  space pause  / search  q quit"
+	switch v := m.cur(); {
+	case m.showQueue:
+		hints = "j/k move  enter play  d remove  A playlist  n/p next/prev  s shuffle  r repeat  Q/h results  q quit"
+	case v.src == srcPlaylists:
+		hints = "j/k move  l open  a queue all  c new  d d delete  h back  q quit"
+	case v.src == srcPlaylist:
+		hints = "j/k move  enter play  a queue  d remove  A other playlist  h back  q quit"
 	}
-	if m.mode == modeSearch {
+	switch m.mode {
+	case modeSearch:
 		label, hints = " SEARCH ", "enter search  esc cancel"
+	case modePicker:
+		label, hints = " PLAYLIST ", "j/k move  enter choose  esc cancel"
+	case modeName:
+		label, hints = " NAME ", "enter create  esc cancel"
 	}
 	left := modeStyle.Render(strings.TrimSpace(label))
 	var text string

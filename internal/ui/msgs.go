@@ -8,6 +8,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 
 	"github.com/mnprtstle/ymtui/internal/player"
+	"github.com/mnprtstle/ymtui/internal/store"
 	"github.com/mnprtstle/ymtui/internal/ytmusic"
 )
 
@@ -28,6 +29,15 @@ type Player interface {
 	SetPause(ctx context.Context, paused bool) error
 	Seek(ctx context.Context, secs float64) error
 	SetVolume(ctx context.Context, percent float64) error
+}
+
+// PlaylistStore is the slice of store.Store the UI needs.
+type PlaylistStore interface {
+	Playlists() []store.Playlist
+	Create(name string) error
+	Delete(name string) error
+	AddSong(name string, song ytmusic.Song) (added bool, err error)
+	RemoveSong(name string, idx int) error
 }
 
 // Messages. Each is a distinct type so Update can type-switch on them.
