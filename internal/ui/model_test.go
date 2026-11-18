@@ -442,3 +442,20 @@ func TestToastExpiry(t *testing.T) {
 		})
 	}
 }
+
+func TestHelpOverlay(t *testing.T) {
+	m := New(nil, nil, nil)
+	next, _ := m.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune("?")})
+	m = next.(Model)
+	if m.mode != modeHelp {
+		t.Fatalf("mode = %v, want modeHelp", m.mode)
+	}
+	m.width, m.height = 100, 40
+	if v := m.View(); !strings.Contains(v, "this help") {
+		t.Error("help overlay not rendered")
+	}
+	next, _ = m.Update(tea.KeyMsg{Type: tea.KeyEsc})
+	if next.(Model).mode != modeNormal {
+		t.Error("esc did not close help")
+	}
+}

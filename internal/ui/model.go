@@ -22,6 +22,7 @@ const (
 	modeSearch
 	modePicker // "add to playlist" overlay
 	modeName   // typing a new playlist's name
+	modeHelp   // key reference overlay
 )
 
 // Model is the whole UI state. Bubble Tea follows the Elm architecture:
@@ -142,6 +143,8 @@ func (m Model) update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m.updatePicker(msg)
 		case modeName:
 			return m.updateName(msg)
+		case modeHelp:
+			return m.updateHelp(msg)
 		}
 		return m.updateNormal(msg)
 
@@ -225,6 +228,8 @@ func (m Model) updateNormal(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	switch key {
 	case "q":
 		return m, tea.Quit
+	case "?":
+		m.mode = modeHelp
 	case "/":
 		// Searching always happens at the root, so unwind the stack.
 		m.stack, m.showQueue = m.stack[:1], false

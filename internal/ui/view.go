@@ -32,7 +32,9 @@ func (m Model) View() string {
 func (m Model) viewPane() string {
 	inner := m.width - 2
 	var lines []string
-	if m.mode == modePicker || m.mode == modeName {
+	if m.mode == modeHelp {
+		lines = []string{viewHelp(inner-2, m.height-barHeight-statusHeight-4)}
+	} else if m.mode == modePicker || m.mode == modeName {
 		lines = []string{m.viewOverlay(inner-2, m.height-barHeight-statusHeight-4)}
 	} else if m.showQueue {
 		lines = append(lines, m.queueTitle(), m.header(inner-2))
@@ -275,7 +277,7 @@ func (m Model) progress(w int) string {
 }
 
 func (m Model) viewStatus() string {
-	label, hints := " NORMAL ", "j/k move  l open/play  h back  tab type  a queue  A playlist  P playlists  n/p next/prev  s shuffle  r repeat  Q queue  space pause  / search  q quit"
+	label, hints := " NORMAL ", "? help  j/k move  l open/play  h back  tab type  a queue  A playlist  P playlists  n/p next/prev  s shuffle  r repeat  Q queue  space pause  / search  q quit"
 	switch v := m.cur(); {
 	case m.showQueue:
 		hints = "j/k move  enter play  d remove  A playlist  n/p next/prev  s shuffle  r repeat  Q/h results  q quit"
@@ -289,6 +291,8 @@ func (m Model) viewStatus() string {
 		label, hints = " SEARCH ", "enter search  esc cancel"
 	case modePicker:
 		label, hints = " PLAYLIST ", "j/k move  enter choose  esc cancel"
+	case modeHelp:
+		label, hints = " HELP ", "? close  esc close"
 	case modeName:
 		label, hints = " NAME ", "enter create  esc cancel"
 	}
