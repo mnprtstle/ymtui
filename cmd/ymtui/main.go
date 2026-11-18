@@ -10,13 +10,16 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"log"
 	"os"
 	"os/signal"
+	"sync/atomic"
 	"syscall"
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
 
+	"github.com/mnprtstle/ymtui/internal/mpris"
 	"github.com/mnprtstle/ymtui/internal/player"
 	"github.com/mnprtstle/ymtui/internal/store"
 	"github.com/mnprtstle/ymtui/internal/ui"
@@ -76,7 +79,26 @@ func tui() error {
 		return err
 	}
 
-	prog := tea.NewProgram(ui.New(ytmusic.NewClient(), p, playlists), tea.WithAltScreen())
+	model := ui.New(ytmusic.NewClient(), p, playlists)
+	// The MPRIS callback needs the program, which needs the model, which
+	// needs the server. An atomic pointer breaks the cycle safely: godbus
+	// calls the callback on another goroutine, so a plain variable would be
+	// a data race.
+	var progRef atomic.Pointer[tea.Program]
+	srv, err := mpris.Start(func(c mpris.Command) {
+		if p := progRef.Load(); p != nil {
+			p.Send(ui.MediaMsg{Cmd: c})
+		}
+	})
+	if err != nil {
+		// Media keys are optional (no session bus over SSH, say).
+		log.Printf("mpris disabled: %v", err)
+	} else {
+		defer srv.Close()
+		model = model.WithMedia(srv)
+	}
+	prog := tea.NewProgram(model, tea.WithAltScreen())
+	progRef.Store(prog)
 	go ui.Pump(prog, p.Events())
 	_, err = prog.Run()
 	return err

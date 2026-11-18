@@ -31,6 +31,7 @@ type Model struct {
 	catalog   Catalog
 	player    Player
 	playlists PlaylistStore
+	media     Media // optional MPRIS server
 
 	width, height int
 	mode          mode
@@ -94,6 +95,14 @@ func (m Model) Init() tea.Cmd { return nil }
 // Update handles one message. It must never block: slow work is returned as
 // a tea.Cmd, whose result arrives later as another message.
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	next, cmd := m.update(msg)
+	if nm, ok := next.(Model); ok && nm.media != nil {
+		nm.media.SetState(nm.mediaState()) // cheap and non-blocking
+	}
+	return next, cmd
+}
+
+func (m Model) update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		m.width, m.height = msg.Width, msg.Height
@@ -153,6 +162,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, m.advance(true)
 		}
 		return m, nil
+
+	case MediaMsg:
+		return m, m.handleMedia(msg.Cmd)
 
 	case errMsg:
 		m.searching = false
