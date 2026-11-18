@@ -54,7 +54,7 @@ type Model struct {
 	queue            *queue.Queue
 	showQueue        bool // toggled with Q: queue list instead of results
 	qCursor, qOffset int
-	notice           string // transient status message, cleared on next key
+	notice           string // transient status message, cleared on next key or after a timeout
 
 	now      *ytmusic.Song // track we asked mpv to play
 	title    string        // mpv's media-title, used until we have a Song
@@ -62,6 +62,7 @@ type Model struct {
 	paused   bool
 	volume   float64
 	err      error
+	toastSeq int // id of the newest toast; see toastExpiredMsg
 }
 
 // New builds the initial model.
@@ -95,11 +96,30 @@ func (m Model) Init() tea.Cmd { return nil }
 // Update handles one message. It must never block: slow work is returned as
 // a tea.Cmd, whose result arrives later as another message.
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	if t, ok := msg.(toastExpiredMsg); ok {
+		// Only the newest toast's timer clears it; older timers are stale.
+		if t.id == m.toastSeq {
+			m.err, m.notice = nil, ""
+		}
+		return m, nil
+	}
+	before := m.toastText()
 	next, cmd := m.update(msg)
-	if nm, ok := next.(Model); ok && nm.media != nil {
+	nm, ok := next.(Model)
+	if !ok {
+		return next, cmd
+	}
+	// Update's many branches set m.err / m.notice directly. Rather than
+	// touch each one, notice here that a toast appeared or changed and start
+	// its expiry timer.
+	if after := nm.toastText(); after != "" && after != before {
+		nm.toastSeq++
+		cmd = tea.Batch(cmd, toastTimer(nm.toastSeq, nm.err != nil))
+	}
+	if nm.media != nil {
 		nm.media.SetState(nm.mediaState()) // cheap and non-blocking
 	}
-	return next, cmd
+	return nm, cmd
 }
 
 func (m Model) update(msg tea.Msg) (tea.Model, tea.Cmd) {

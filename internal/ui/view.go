@@ -334,3 +334,13 @@ func clock(secs float64) string {
 	s := int(secs)
 	return fmt.Sprintf("%d:%02d", s/60, s%60)
 }
+
+// toastText is the message the status line is showing, or "" if none.
+func (m Model) toastText() string {
+	switch {
+	case m.err != nil:
+		return m.err.Error()
+	default:
+		return m.notice
+	}
+}

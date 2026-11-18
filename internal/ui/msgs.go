@@ -61,7 +61,25 @@ type (
 	playerEventMsg struct{ ev player.Event }
 	// errMsg reports a failed Cmd.
 	errMsg struct{ err error }
+	// toastExpiredMsg fires when a toast's timer ends. id says which toast it
+	// belongs to, so a timer from an earlier toast can't clear a newer one.
+	toastExpiredMsg struct{ id int }
 )
+
+const (
+	noticeTTL = 3 * time.Second
+	errorTTL  = 6 * time.Second
+)
+
+// toastTimer returns a Cmd that sleeps, then delivers toastExpiredMsg.
+// tea.Tick does the waiting off the Update goroutine.
+func toastTimer(id int, isErr bool) tea.Cmd {
+	d := noticeTTL
+	if isErr {
+		d = errorTTL
+	}
+	return tea.Tick(d, func(time.Time) tea.Msg { return toastExpiredMsg{id} })
+}
 
 const cmdTimeout = 30 * time.Second // loadfile can wait on yt-dlp
 

@@ -420,3 +420,25 @@ func TestBrowseViewFitsTerminal(t *testing.T) {
 		}
 	}
 }
+
+func TestToastExpiry(t *testing.T) {
+	m := New(nil, nil, nil)
+	m.notice = "first"
+	m.toastSeq = 2
+	tests := []struct {
+		name      string
+		id        int
+		wantClear bool
+	}{
+		{"stale timer is ignored", 1, false},
+		{"current timer clears", 2, true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			next, _ := m.Update(toastExpiredMsg{tt.id})
+			if got := next.(Model).notice == ""; got != tt.wantClear {
+				t.Errorf("cleared = %v, want %v", got, tt.wantClear)
+			}
+		})
+	}
+}
