@@ -219,6 +219,9 @@ func (q *Queue) ToggleShuffle() bool {
 	return false
 }
 
+// SetRepeat sets the repeat mode directly (used when restoring a session).
+func (q *Queue) SetRepeat(r Repeat) { q.repeat = r % 3 }
+
 // CycleRepeat moves off → all → one → off and returns the new mode.
 func (q *Queue) CycleRepeat() Repeat {
 	q.repeat = (q.repeat + 1) % 3

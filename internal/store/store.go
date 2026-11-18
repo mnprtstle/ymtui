@@ -15,6 +15,7 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/mnprtstle/ymtui/internal/atomicfile"
 	"github.com/mnprtstle/ymtui/internal/ytmusic"
 )
 
@@ -47,10 +48,10 @@ type Store struct {
 	playlists []Playlist
 }
 
-// DefaultPath is $XDG_DATA_HOME/ymtui/playlists.json, falling back to
-// ~/.local/share/ymtui/playlists.json. (os.UserConfigDir exists in the
-// standard library but there is no data-dir equivalent, hence this.)
-func DefaultPath() (string, error) {
+// DataDir is $XDG_DATA_HOME/ymtui, falling back to ~/.local/share/ymtui.
+// (os.UserConfigDir exists in the standard library but there is no data-dir
+// equivalent, hence this.)
+func DataDir() (string, error) {
 	dir := os.Getenv("XDG_DATA_HOME")
 	if dir == "" {
 		home, err := os.UserHomeDir()
@@ -59,7 +60,16 @@ func DefaultPath() (string, error) {
 		}
 		dir = filepath.Join(home, ".local", "share")
 	}
-	return filepath.Join(dir, "ymtui", "playlists.json"), nil
+	return filepath.Join(dir, "ymtui"), nil
+}
+
+// DefaultPath is DataDir()/playlists.json.
+func DefaultPath() (string, error) {
+	dir, err := DataDir()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(dir, "playlists.json"), nil
 }
 
 // Open loads the store at path. A missing file is not an error: it is the
@@ -154,36 +164,13 @@ func (s *Store) commit(next []Playlist) error {
 	return nil
 }
 
-// save writes atomically: write a temp file in the same directory, then
-// rename it over the target. Rename within one filesystem is atomic, so a
-// crash leaves either the old file or the new one, never half of one.
+// save writes the playlists file atomically.
 func (s *Store) save(pls []Playlist) error {
 	data, err := json.MarshalIndent(fileFormat{Version: currentVersion, Playlists: pls}, "", "  ")
 	if err != nil {
 		return fmt.Errorf("encode playlists: %w", err)
 	}
-	dir := filepath.Dir(s.path)
-	if err := os.MkdirAll(dir, 0o755); err != nil {
-		return fmt.Errorf("create %s: %w", dir, err)
-	}
-	tmp, err := os.CreateTemp(dir, "playlists-*.tmp")
-	if err != nil {
-		return fmt.Errorf("save playlists: %w", err)
-	}
-	// On any failure below, don't leave the temp file behind. After a
-	// successful rename it no longer exists, so this Remove is a no-op.
-	defer os.Remove(tmp.Name())
-	if _, err := tmp.Write(append(data, '\n')); err != nil {
-		tmp.Close()
-		return fmt.Errorf("save playlists: %w", err)
-	}
-	if err := tmp.Close(); err != nil {
-		return fmt.Errorf("save playlists: %w", err)
-	}
-	if err := os.Rename(tmp.Name(), s.path); err != nil {
-		return fmt.Errorf("save playlists: %w", err)
-	}
-	return nil
+	return atomicfile.Write(s.path, append(data, '\n'))
 }
 
 // find returns the index of the playlist called name (ignoring case), or -1.

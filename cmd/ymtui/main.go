@@ -22,6 +22,7 @@ import (
 	"github.com/mnprtstle/ymtui/internal/config"
 	"github.com/mnprtstle/ymtui/internal/mpris"
 	"github.com/mnprtstle/ymtui/internal/player"
+	"github.com/mnprtstle/ymtui/internal/session"
 	"github.com/mnprtstle/ymtui/internal/store"
 	"github.com/mnprtstle/ymtui/internal/ui"
 	"github.com/mnprtstle/ymtui/internal/ytmusic"
@@ -86,6 +87,15 @@ func tui() error {
 		log.Printf("set initial volume: %v", err)
 	}
 	model := ui.New(ytmusic.NewClient(), p, playlists).WithVolume(cfg.Volume)
+
+	sessionPath, err := session.DefaultPath()
+	if err != nil {
+		log.Printf("session disabled: %v", err)
+	} else if st, err := session.Load(sessionPath); err != nil {
+		log.Printf("session ignored: %v", err)
+	} else {
+		model = model.WithSession(st)
+	}
 	// The MPRIS callback needs the program, which needs the model, which
 	// needs the server. An atomic pointer breaks the cycle safely: godbus
 	// calls the callback on another goroutine, so a plain variable would be
@@ -106,8 +116,17 @@ func tui() error {
 	prog := tea.NewProgram(model, tea.WithAltScreen())
 	progRef.Store(prog)
 	go ui.Pump(prog, p.Events())
-	_, err = prog.Run()
-	return err
+	final, err := prog.Run()
+	if err != nil {
+		return err
+	}
+	// prog.Run returns the model as it was when the program quit.
+	if fm, ok := final.(ui.Model); ok && sessionPath != "" {
+		if serr := session.Save(sessionPath, fm.Session()); serr != nil {
+			log.Printf("save session: %v", serr)
+		}
+	}
+	return nil
 }
 
 // loadConfig never fails: a broken config is logged and defaults are used,

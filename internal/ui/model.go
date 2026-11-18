@@ -57,13 +57,15 @@ type Model struct {
 	qCursor, qOffset int
 	notice           string // transient status message, cleared on next key or after a timeout
 
-	now      *ytmusic.Song // track we asked mpv to play
-	title    string        // mpv's media-title, used until we have a Song
-	pos, dur float64       // seconds
-	paused   bool
-	volume   float64
-	err      error
-	toastSeq int // id of the newest toast; see toastExpiredMsg
+	now           *ytmusic.Song // track we asked mpv to play
+	title         string        // mpv's media-title, used until we have a Song
+	pos, dur      float64       // seconds
+	paused        bool
+	volume        float64
+	err           error
+	pendingResume bool    // track restored from a session but not loaded in mpv yet
+	seekOnLoad    float64 // seconds to seek to when mpv reports file-loaded
+	toastSeq      int     // id of the newest toast; see toastExpiredMsg
 }
 
 // New builds the initial model.
@@ -191,6 +193,11 @@ func (m Model) update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if msg.ev.Name == "end-file" && msg.ev.Reason == "eof" {
 			return m, m.advance(true)
 		}
+		if msg.ev.Name == "file-loaded" && m.seekOnLoad > 0 {
+			secs := m.seekOnLoad
+			m.seekOnLoad = 0
+			return m, m.seek(secs)
+		}
 		return m, nil
 
 	case MediaMsg:
@@ -300,9 +307,7 @@ func (m Model) updateNormal(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	case "r":
 		m.notice = "repeat " + m.queue.CycleRepeat().String()
 	case " ":
-		p := m.player
-		pause := !m.paused
-		return m, playerCmd("pause", func(ctx context.Context) error { return p.SetPause(ctx, pause) })
+		return m, m.setPause(!m.paused)
 	case "H", "left":
 		return m, m.seek(-5)
 	case "L", "right":
@@ -435,12 +440,16 @@ func (m *Model) previous() tea.Cmd {
 func (m *Model) playSong(song ytmusic.Song) tea.Cmd {
 	m.now = &song
 	m.pos, m.dur = 0, 0
+	m.pendingResume, m.seekOnLoad = false, 0
 	p := m.player
 	url := "https://music.youtube.com/watch?v=" + song.VideoID
 	return playerCmd("play", func(ctx context.Context) error { return p.Load(ctx, url) })
 }
 
 func (m Model) seek(secs float64) tea.Cmd {
+	if m.pendingResume {
+		return nil // nothing loaded yet
+	}
 	p := m.player
 	return playerCmd("seek", func(ctx context.Context) error { return p.Seek(ctx, secs) })
 }
@@ -458,6 +467,11 @@ func (m *Model) applyEvent(msg playerEventMsg) {
 	ev := msg.ev
 	switch ev.Name {
 	case "property-change":
+		// Until the restored track is loaded, mpv is idle and reports
+		// "nothing" for these; don't let that wipe the restored display.
+		if m.pendingResume && ev.Property != "volume" {
+			return
+		}
 		switch ev.Property {
 		case "time-pos":
 			var f float64

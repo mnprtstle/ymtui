@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"reflect"
 	"slices"
 	"strings"
 	"testing"
@@ -12,6 +13,7 @@ import (
 	"github.com/charmbracelet/x/ansi"
 
 	"github.com/mnprtstle/ymtui/internal/player"
+	"github.com/mnprtstle/ymtui/internal/session"
 	"github.com/mnprtstle/ymtui/internal/ytmusic"
 )
 
@@ -473,5 +475,54 @@ func TestApplyTheme(t *testing.T) {
 	}
 	if got := New(nil, nil, nil).WithVolume(150).volume; got != 100 {
 		t.Errorf("volume = %v, want clamp to 100", got)
+	}
+}
+
+func TestSessionResume(t *testing.T) {
+	st := session.State{
+		Songs:    []ytmusic.Song{{VideoID: "a", Title: "A"}, {VideoID: "b", Title: "B"}},
+		Index:    1,
+		Position: 30,
+		Duration: 120,
+		Repeat:   1,
+	}
+	fp := &fakePlayer{}
+	m := New(nil, fp, nil).WithSession(st)
+
+	if m.now == nil || m.now.VideoID != "b" || !m.paused || m.pos != 30 {
+		t.Fatalf("restored state wrong: now=%v paused=%v pos=%v", m.now, m.paused, m.pos)
+	}
+	if got := m.Session(); !reflect.DeepEqual(got.Songs, st.Songs) || got.Index != 1 || got.Repeat != 1 {
+		t.Errorf("Session() = %+v", got)
+	}
+
+	// mpv's idle property reports must not wipe the restored display.
+	next, _ := m.Update(playerEventMsg{player.Event{Name: "property-change", Property: "duration", Data: json.RawMessage("null")}})
+	if next.(Model).dur != 120 {
+		t.Error("idle duration event overwrote restored duration")
+	}
+
+	// Seeking with nothing loaded is a no-op, not an error.
+	if cmd := m.seek(5); cmd != nil {
+		t.Error("seek before resume should do nothing")
+	}
+
+	// First play loads the track; the seek waits for file-loaded.
+	next, cmd := m.Update(tea.KeyMsg{Type: tea.KeySpace})
+	m = next.(Model)
+	if cmd == nil || m.pendingResume || m.seekOnLoad != 30 {
+		t.Fatalf("after space: cmd=%v pending=%v seekOnLoad=%v", cmd != nil, m.pendingResume, m.seekOnLoad)
+	}
+	cmd() // runs the player calls against the fake
+	if len(fp.loaded) != 1 || !strings.HasSuffix(fp.loaded[0], "v=b") {
+		t.Errorf("loaded = %v", fp.loaded)
+	}
+	next, cmd = m.Update(playerEventMsg{player.Event{Name: "file-loaded"}})
+	if cmd == nil || next.(Model).seekOnLoad != 0 {
+		t.Error("file-loaded should trigger the saved seek once")
+	}
+
+	if (session.State{}).Valid() || New(nil, fp, nil).WithSession(session.State{}).now != nil {
+		t.Error("empty session must not restore anything")
 	}
 }

@@ -1,7 +1,6 @@
 package ui
 
 import (
-	"context"
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -45,13 +44,7 @@ func secs(f float64) time.Duration { return time.Duration(f * float64(time.Secon
 // handleMedia runs a remote command. Play/pause only mean something once a
 // song is loaded; before that there is nothing to resume.
 func (m *Model) handleMedia(c mpris.Command) tea.Cmd {
-	p := m.player
-	setPause := func(pause bool) tea.Cmd {
-		if m.now == nil {
-			return nil
-		}
-		return playerCmd("pause", func(ctx context.Context) error { return p.SetPause(ctx, pause) })
-	}
+	setPause := m.setPause
 	switch c.Kind {
 	case mpris.Play:
 		return setPause(false)
