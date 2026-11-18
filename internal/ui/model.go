@@ -63,6 +63,8 @@ type Model struct {
 	paused        bool
 	volume        float64
 	err           error
+	sidebarFocus  bool // keys go to the sidebar instead of the main pane
+	sideCursor    int
 	pendingResume bool    // track restored from a session but not loaded in mpv yet
 	seekOnLoad    float64 // seconds to seek to when mpv reports file-loaded
 	toastSeq      int     // id of the newest toast; see toastExpiredMsg
@@ -136,7 +138,8 @@ func (m Model) update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		m.width, m.height = msg.Width, msg.Height
-		m.input.Width = max(msg.Width-8-tabsWidth, 10)
+		m.sidebarFocus = m.sidebarFocus && m.sidebarShown() // a hidden sidebar can't hold focus
+		m.input.Width = max(m.paneWidth()-8-tabsWidth, 10)
 		m.scrollToCursor()
 		return m, nil
 
@@ -234,6 +237,29 @@ func (m Model) updateSearch(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 
 func (m Model) updateNormal(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	key := msg.String()
+	switch key {
+	case "ctrl+h", "ctrl+l":
+		// Move focus between sidebar and main pane (only when it is drawn).
+		if m.sidebarShown() {
+			m.sidebarFocus = key == "ctrl+h"
+		}
+		return m, nil
+	case "1", "2", "3":
+		m.sidebarFocus = false
+		m.pendingG = false
+		switch key {
+		case "1":
+			m.activateSidebar(0)
+		case "2":
+			m.activateSidebar(1)
+		case "3":
+			m.openPlaylists()
+		}
+		return m, nil
+	}
+	if m.sidebarFocus && m.mode == modeNormal && !globalKeys[key] {
+		return m.updateSidebar(msg)
+	}
 	wasG := m.pendingG
 	m.pendingG = false
 	armed := m.pendingDelete // set by a first "d" on a playlist; any other key disarms it
@@ -245,6 +271,7 @@ func (m Model) updateNormal(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	case "?":
 		m.mode = modeHelp
 	case "/":
+		m.sidebarFocus = false
 		// Searching always happens at the root, so unwind the stack.
 		m.stack, m.showQueue = m.stack[:1], false
 		m.mode = modeSearch

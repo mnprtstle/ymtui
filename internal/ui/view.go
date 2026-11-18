@@ -25,12 +25,17 @@ func (m Model) View() string {
 	if m.width == 0 {
 		return "" // no WindowSizeMsg yet
 	}
-	frame := lipgloss.JoinVertical(lipgloss.Left, m.viewPane(), m.viewBar(), m.viewStatus())
+	top := m.viewPane()
+	if m.sidebarShown() {
+		top = lipgloss.JoinHorizontal(lipgloss.Top, m.viewSidebar(sidebarWidth, m.height-barHeight-statusHeight), top)
+	}
+	frame := lipgloss.JoinVertical(lipgloss.Left, top, m.viewBar(), m.viewStatus())
 	return paint(frame, m.width, m.height)
 }
 
 func (m Model) viewPane() string {
-	inner := m.width - 2
+	pw := m.paneWidth()
+	inner := pw - 2
 	var lines []string
 	if m.mode == modeHelp {
 		lines = []string{viewHelp(inner-2, m.height-barHeight-statusHeight-4)}
@@ -45,12 +50,12 @@ func (m Model) viewPane() string {
 	}
 
 	border := lipgloss.TerminalColor(dim)
-	if m.mode != modeSearch {
+	if m.mode != modeSearch && !m.sidebarFocus {
 		border = accent
 	}
 	title, right := m.paneTitle()
 	body := strings.Split(strings.Join(lines, "\n"), "\n") // the overlay is one multi-line element
-	return box(title, right, body, m.width, m.height-barHeight-statusHeight, border)
+	return box(title, right, body, pw, m.height-barHeight-statusHeight, border)
 }
 
 // paneTitle is the text set into the pane's top border: what is on screen,
@@ -285,6 +290,9 @@ func (m Model) viewStatus() string {
 		hints = "j/k move  l open  a queue all  c new  d d delete  h back  q quit"
 	case v.src == srcPlaylist:
 		hints = "j/k move  enter play  a queue  d remove  A other playlist  h back  q quit"
+	}
+	if m.sidebarFocus {
+		hints = "j/k move  enter open  ctrl+l main pane  space pause  ? help  q quit"
 	}
 	switch m.mode {
 	case modeSearch:

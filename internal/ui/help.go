@@ -18,6 +18,7 @@ var helpSections = []helpSection{
 	{"Move", [][2]string{
 		{"j/k", "down / up"}, {"gg / G", "top / bottom"}, {"ctrl+d/u", "half page"},
 		{"l, enter", "open / play"}, {"h, esc", "back"}, {"tab", "songs / albums / artists"},
+		{"ctrl+h/l", "focus sidebar / main"}, {"1 2 3", "search / queue / playlists"},
 	}},
 	{"Play", [][2]string{
 		{"space", "pause"}, {"n / p", "next / previous"}, {"H/L, ←/→", "seek 5 s"},

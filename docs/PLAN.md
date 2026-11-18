@@ -135,6 +135,13 @@ Default keys: `j/k` move, `gg/G` top/bottom, `ctrl+d/u` half page, `l`/Enter ope
    - **Status: done, pending your manual check** (branch `phase/07-media-keys`). `internal/mpris`: `Start` claims `org.mpris.MediaPlayer2.ymtui` on the session bus and exports the root and Player interfaces; `SetState` publishes status, metadata, volume and position; remote calls arrive as `Command`s through a callback. `ui`: `MediaMsg` handled in `Update`, state pushed after every `Update` (`WithMedia`). Works with `playerctl` and the hardware media keys.
    - Decisions: skipped mpv-mpris and went straight to our own server, so next/previous go through our queue rather than mpv. Added dep `godbus/dbus/v5`. Own `org.freedesktop.DBus.Properties` implementation instead of godbus's `prop` helper (it merges into stored maps in place: stale metadata keys and a data race). Go method `SeekBy` is exported as D-Bus `Seek` via `ExportWithMap` because `go vet` reserves the name `Seek`. Position is polled by clients, never signalled. If the session bus is missing, media keys are disabled with a log line and the TUI still runs. Not done: LoopStatus/Shuffle properties are static, `OpenUri` and `Quit` are no-ops.
 8. **Polish:** config file, theming, help overlay, error toasts, resume last session.
+   - **Status: done, pending your manual check** (branch `phase/08-polish`).
+     - Toasts: status messages expire after 3 s (notices) or 6 s (errors); a toast id stops an old timer clearing a newer toast.
+     - Help: `?` opens an overlay built from the `helpSections` table in `internal/ui/help.go`.
+     - Config: `internal/config`, JSON at `$XDG_CONFIG_HOME/ymtui/config.json` with `volume` and `theme.accent`/`theme.amber` (`#RRGGBB`). **Changed decision: JSON instead of TOML**, to avoid a new dependency; only `config.Load` and the struct tags would change to switch. A bad file is logged and defaults are used.
+     - Resume: `internal/session` saves the queue (play order), current index, position, duration and repeat to `session.json` in the data dir on quit. The track is restored paused and not loaded into mpv; the first play loads it and seeks on `file-loaded`. Shuffle is not restored. Shared atomic write moved to `internal/atomicfile`.
+     - Sidebar: Search, Queue and each playlist with counts; `ctrl+h`/`ctrl+l` move focus (`tab` still cycles result types); `1`/`2`/`3` jump to Search/Queue/Playlists. Collapses below 90 columns. There is no "Liked" entry (no such feature) and no key 4.
+     - Not done: configurable keys, `:` command line, theme beyond two colors, saving the session on a crash.
 
 ## 6. Verification (per milestone)
 - `go vet ./... && go test ./...`. `queue` and the `ytmusic` parsers get table-driven tests using recorded JSON fixtures.
