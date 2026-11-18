@@ -459,3 +459,19 @@ func TestHelpOverlay(t *testing.T) {
 		t.Error("esc did not close help")
 	}
 }
+
+func TestApplyTheme(t *testing.T) {
+	old := accent
+	defer func() { accent = old; buildStyles() }()
+	ApplyTheme("#123456", "")
+	if accent.Dark != "#123456" || accent.Light != "#123456" {
+		t.Errorf("accent = %+v", accent)
+	}
+	ApplyTheme("", "")
+	if accent.Dark != "#123456" {
+		t.Error("empty value must keep the current color")
+	}
+	if got := New(nil, nil, nil).WithVolume(150).volume; got != 100 {
+		t.Errorf("volume = %v, want clamp to 100", got)
+	}
+}

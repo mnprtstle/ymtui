@@ -77,6 +77,13 @@ func New(c Catalog, p Player, ps PlaylistStore) Model {
 	return Model{catalog: c, player: p, playlists: ps, nameInput: newNameInput(), input: in, volume: 100, queue: queue.New(nil), stack: []listView{root}}
 }
 
+// WithVolume sets the initial volume (0-100) shown in the player bar. The
+// caller must also set mpv's volume.
+func (m Model) WithVolume(v int) Model {
+	m.volume = float64(min(max(v, 0), 100))
+	return m
+}
+
 // cur is the view on top of the stack.
 func (m *Model) cur() *listView { return &m.stack[len(m.stack)-1] }
 

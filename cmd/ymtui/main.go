@@ -19,6 +19,7 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 
+	"github.com/mnprtstle/ymtui/internal/config"
 	"github.com/mnprtstle/ymtui/internal/mpris"
 	"github.com/mnprtstle/ymtui/internal/player"
 	"github.com/mnprtstle/ymtui/internal/store"
@@ -79,7 +80,12 @@ func tui() error {
 		return err
 	}
 
-	model := ui.New(ytmusic.NewClient(), p, playlists)
+	cfg := loadConfig()
+	ui.ApplyTheme(cfg.Theme.Accent, cfg.Theme.Amber) // before New: widgets copy styles
+	if err := p.SetVolume(ctx, float64(cfg.Volume)); err != nil {
+		log.Printf("set initial volume: %v", err)
+	}
+	model := ui.New(ytmusic.NewClient(), p, playlists).WithVolume(cfg.Volume)
 	// The MPRIS callback needs the program, which needs the model, which
 	// needs the server. An atomic pointer breaks the cycle safely: godbus
 	// calls the callback on another goroutine, so a plain variable would be
@@ -102,6 +108,21 @@ func tui() error {
 	go ui.Pump(prog, p.Events())
 	_, err = prog.Run()
 	return err
+}
+
+// loadConfig never fails: a broken config is logged and defaults are used,
+// because a typo in a color shouldn't stop the player from starting.
+func loadConfig() config.Config {
+	path, err := config.DefaultPath()
+	if err != nil {
+		log.Printf("config: %v", err)
+		return config.Default()
+	}
+	cfg, err := config.Load(path)
+	if err != nil {
+		log.Printf("config ignored: %v", err)
+	}
+	return cfg
 }
 
 func search(query string) error {

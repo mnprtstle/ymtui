@@ -24,11 +24,19 @@ var (
 	redDeep  = lipgloss.AdaptiveColor{Light: "#D98C92", Dark: "#7A1B22"} // quiet red for borders
 )
 
+// Styles are built from the palette by buildStyles, so ApplyTheme can
+// rebuild them after changing a color.
 var (
-	dimStyle    = lipgloss.NewStyle().Foreground(dim)
+	dimStyle, accentStyle, amberStyle, boldStyle, headerStyle, cursorStyle, playingStyle, errStyle, modeStyle, tabOn, tabOff, keyStyle lipgloss.Style
+)
+
+func init() { buildStyles() }
+
+func buildStyles() {
+	dimStyle = lipgloss.NewStyle().Foreground(dim)
 	accentStyle = lipgloss.NewStyle().Foreground(accent)
-	amberStyle  = lipgloss.NewStyle().Foreground(amber)
-	boldStyle   = lipgloss.NewStyle().Bold(true).Foreground(text)
+	amberStyle = lipgloss.NewStyle().Foreground(amber)
+	boldStyle = lipgloss.NewStyle().Bold(true).Foreground(text)
 
 	// headerStyle is the column-header band.
 	headerStyle = lipgloss.NewStyle().Bold(true).Foreground(amber).Background(bandBG)
@@ -42,15 +50,28 @@ var (
 	errStyle = lipgloss.NewStyle().Bold(true).Padding(0, 1).Foreground(onAccent).Background(accent)
 
 	modeStyle = lipgloss.NewStyle().Bold(true).Padding(0, 1).
-			Foreground(onAccent).
-			Background(accent)
+		Foreground(onAccent).
+		Background(accent)
 
 	// tabOn is the active result type: a red pill. tabOff is the rest.
-	tabOn  = lipgloss.NewStyle().Bold(true).Padding(0, 1).Foreground(onAccent).Background(accent)
+	tabOn = lipgloss.NewStyle().Bold(true).Padding(0, 1).Foreground(onAccent).Background(accent)
 	tabOff = lipgloss.NewStyle().Padding(0, 1).Foreground(dim)
 
 	keyStyle = lipgloss.NewStyle().Bold(true).Foreground(amber)
-)
+}
+
+// ApplyTheme overrides the accent and amber colors with "#RRGGBB" values
+// (empty keeps the default) and rebuilds the styles. Call it before the
+// program starts. One color serves both light and dark terminals.
+func ApplyTheme(accentHex, amberHex string) {
+	if accentHex != "" {
+		accent = lipgloss.AdaptiveColor{Light: accentHex, Dark: accentHex}
+	}
+	if amberHex != "" {
+		amber = lipgloss.AdaptiveColor{Light: amberHex, Dark: amberHex}
+	}
+	buildStyles()
+}
 
 // bgSeq is the escape sequence that switches on the canvas background for
 // the terminal's color profile. We let lipgloss render one marker character
